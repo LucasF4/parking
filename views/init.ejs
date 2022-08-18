@@ -1,0 +1,110 @@
+<%- include('./partials/head.ejs') %>
+<%- include('./partials/nav.ejs') %>
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+  <body>
+    <p>[F2] - Entrada de Veículos / [F8] - Saída de Veículos</p>
+    <form action="/register" method="post" class="mt-4 row" id="enter" >
+      <h3>Entrada de Veículos</h3>
+      <div class="col-3">
+        <label class="form-label">Placa</label>
+        <input type="text" name="plac" class="form-control" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
+      </div>
+      <div class="col-4 ms-auto p-2">
+        <button type="submit" class="btn btn-outline-success">Registrar Entrada</button>
+      </div>
+    </form>
+
+    <form action="/payment" method="post" class="mt-4 row d-none" id="exit" >
+      <h3>Saída de Veículos</h3>
+      <div class="col-3">
+        <label class="form-label">Placa</label>
+        <input type="text" name="plac" class="form-control" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
+      </div>
+      <div class="col-4 ms-auto p-2">
+        <button type="submit" class="btn btn-outline-success">Registrar Saída</button>
+      </div>
+    </form>
+
+    <div>
+      <table class="table text-center mt-5">
+        <thead>
+          <tr>
+            <th scope="col">Placa</th>
+            <th scope="col">Entrada</th>
+            <th scope="col">Saída</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% vec.forEach(function(vec){ %>
+            <% if(vec.saida == null){ %>
+              <tr>
+                <td><%= vec.placa %></td>
+                <td><%= vec.entrada.toString().substring(15, 24) %></td>
+                <% if(vec.saida == null){ %>
+                  <td style="color: green;">Pátio</td>
+                <% }else{ %>
+                  <td><%= vec.saida.toString().substring(15, 24) %></td>
+                <% } %>
+              </tr>
+            <% } %>
+          <% }) %>
+        </tbody>
+      </table>
+      <!-- <table class="table text-center">
+        <thead>
+          <tr>
+            <th scope="col">Placa</th>
+            <th scope="col">Entrada</th>
+            <th scope="col">Saída</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% vec.forEach(function(vec){ %>
+            <tr>
+
+              <% if(vec.saida != null){ %>
+                <td><%= vec.placa %></td>
+                <td><%= vec.entrada.toString().substring(15, 24) %></td>
+                <td><%= vec.saida.toString().substring(15, 24) %></td>
+              <% } %>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table> -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script>
+      var entrar = document.getElementById('enter')
+      var sair = document.getElementById('exit')
+
+      var inp = document.getElementById('placa')
+      addEventListener('input', () => {
+        inp.value = inp.value.toUpperCase();
+      })
+
+      document.addEventListener('keydown', e=> {
+          alterar(e.key)
+      })
+
+      function alterar(key){
+          var altera = alterarInput[key]
+          if(altera){
+              altera()
+          }
+      }
+
+      var alterarInput = {
+          F2(){
+            sair.classList.add('d-none')
+            entrar.classList.remove('d-none')
+          },
+          F8(){
+            entrar.classList.add('d-none')
+            sair.classList.remove('d-none')
+          }
+      }
+    </script>
+  </body>
+</main>
