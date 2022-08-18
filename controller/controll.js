@@ -36,13 +36,13 @@ router.post('/payment', async (req, res) => {
             var diff = moment(resp.rows[0]['entrada'], 'HH:mm:ss').diff(moment(resp.rows[0]['now'], 'HH:mm:ss'))
             var dias = moment.duration(diff)
             
-            var tempo = (parseInt(dias['_data']['hours']) + ':' + dias['_data']['minutes'] + ':' + dias['_data']['seconds']).replaceAll('-', '')
+            var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' +(parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
             console.log(tempo)
 
-            if(parseInt(dias['_data']['hours'].toString().replaceAll('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replaceAll('-', '')) < 30){
+            if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30){
                 preco = preco + 2;
                 console.log('Preço é de ' + preco)
-            }else if(parseInt(dias['_data']['hours'].toString().replaceAll('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replaceAll('-', '')) >= 30){
+            }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30){
                 preco = preco + 4
                 console.log('Preço é de ' + preco)
             }else{
@@ -60,13 +60,13 @@ router.post('/payment', async (req, res) => {
                         k++
                     }
 
-                }while(i < parseInt(dias['_data']['minutes'].toString().replaceAll('-', '')) || k < parseInt(dias['_data']['hours'].toString().replaceAll('-', '')))
+                }while(i < parseInt(dias['_data']['minutes'].toString().replace('-', '')) || k < parseInt(dias['_data']['hours'].toString().replace('-', '')))
                 console.log(k + ':' + i)
                 console.log('Preço total: ' + preco)
             }
 
 
-            res.render('info', {placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replaceAll('.', ',') + '0' : preco.toString() + ',00'})
+            res.render('info', {placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replace('.', ',') + '0' : preco.toString() + ',00'})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)
@@ -80,7 +80,8 @@ router.post('/payment', async (req, res) => {
 router.post('/fnsh', (req, res) => {
     var { inputplaca, inputenter, inputexit, inputestadia, inputpay } = req.body
 
-    console.log(inputplaca)
+    console.log(inputplaca + ' ' + inputenter + ' ' + inputexit + ' ' + inputestadia)
+
 })
 
 module.exports = router

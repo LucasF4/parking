@@ -35,6 +35,8 @@
                     </div>
                 </div>
             </div>
+            <label class="form-label">Total: </label>
+            <label id="total"><%= valor %></label>
             <div class="row mt-5 mx-auto w-50">
                 <a href="/" class="btn btn-outline-primary mb-3">Voltar</a>
                 <button type="submit" class="btn btn-success">Finalizar</button>
@@ -49,8 +51,8 @@
     console.log(parseFloat(preco.value))
     console.log(parseFloat(desconto.value))
 
-    desconto.addEventListener('change', () => {
-        var total = parseFloat(preco.value) - parseFloat(desconto.value)
-        console.log(total)
+    desconto.addEventListener('keyup', () => {
+        var total = parseFloat(preco.value.replace(',', '.')) - parseFloat(desconto.value.replace(',', '.'))
+        document.getElementById('total').innerText = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00'
     })
 </script>
