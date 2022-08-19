@@ -8,9 +8,9 @@ router.post('/register', async (req, res) => {
     var now = moment().format('DD-MM-YYYY HH:mm:ss')
     console.log(`Placa: ${plac} and Time: ${now}`)
 
-    var conferir = await knex('veicles').select().where({placa: plac})
-    console.log(conferir)
-    if(conferir[0] == undefined){
+    var conferir = await knex.raw(`SELECT * FROM veicles WHERE placa = '${plac}' AND estadia is null`)
+    console.log(conferir.rows)
+    if(conferir.rows[0] == undefined){
         await knex.raw(`INSERT INTO veicles (placa, entrada, saida, estadia, preco) VALUES ('${plac}', now(), null, null, null) `)
         .then(() => {
             console.log('Inserido!')
@@ -30,15 +30,21 @@ router.post('/payment', async (req, res) => {
     var conferir = await knex('veicles').select().where({placa: plac})
     if(conferir[0] != undefined){
 
-        await knex.raw(`SELECT *, now()::time, AGE(a.entrada, now()) FROM veicles a WHERE placa = '${plac}'`)
+        await knex.raw(`SELECT *, now()::time, AGE(a.entrada, now()) FROM veicles a WHERE placa = '${plac}' AND  estadia is null`)
         .then( resp => {
+
+            if(resp.rows[0]['estadia'] != null){
+                res.send('Veículo informado já saiu, faça um novo registro')
+                return;
+            }
+
             console.log( resp.rows )
             var diff = moment(resp.rows[0]['entrada'], 'HH:mm:ss').diff(moment(resp.rows[0]['now'], 'HH:mm:ss'))
             var dias = moment.duration(diff)
             
             var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' +(parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
             console.log(tempo)
-
+            
             if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30){
                 preco = preco + 2;
                 console.log('Preço é de ' + preco)
@@ -77,11 +83,20 @@ router.post('/payment', async (req, res) => {
     }
 })
 
-router.post('/fnsh', (req, res) => {
-    var { inputplaca, inputenter, inputexit, inputestadia, inputpay } = req.body
+router.post('/fnsh', async (req, res) => {
+    var { inputplaca, inputenter, inputexit, inputestadia, inputpay, inputdesc, inputpayT } = req.body
 
-    console.log(inputplaca + ' ' + inputenter + ' ' + inputexit + ' ' + inputestadia)
+    console.log(inputplaca + ' ' + inputenter + ' ' + inputexit + ' ' + inputestadia + ' ' + inputpay + ' ' + inputdesc + ' ' + inputpayT.replace(',', '.'))
+    await knex.raw(`UPDATE veicles SET saida = '${inputexit}', estadia = '${inputestadia}', preco = ${inputpayT.replace(',', '.')}, desconto = ${inputdesc.replace(',', '.')} WHERE placa = '${inputplaca}' AND estadia is null`)
+    .then(() => {
+        console.log('Pagamento realizado!')
+        res.redirect('/')
+    })
+    .catch( err => console.log(err) )
+})
 
+router.get('/relatorio', async (req, res) => {
+    res.render('')
 })
 
 module.exports = router
