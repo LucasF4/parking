@@ -1,0 +1,176 @@
+<%- include('./partials/head.ejs') %>
+<%- include('./partials/nav.ejs') %>
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+    <div class="p-4" style="border-bottom: 1px solid black;">
+        <!-- <div class="row">
+            <div class="col-3"><span>De: </span><input type="date" id="dateInit" value="<%= hoje %>"></div>
+            <div class="col-3"><span>Até: </span><input type="date" id="dateEnd" value="<%= fim %>"></div>
+            <div class="col-4"><button class="btn btn-primary" onclick="total()">Teste</button></div>
+        </div> -->
+        <div>
+            <h4 class="text-center">Tabela do mês atual</h4>
+            <table id="table" class="table text-center mt-5 table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Entrada</th>
+                    <th scope="col">Saída</th>
+                    <th scope="col">Preco</th>
+                    <th scope="col">Desconto</th>
+                    <th scope="col">Cortesia</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody">
+                  <% veiculos.forEach(function(veiculos){ %>
+                      <tr>
+                        <td><%= veiculos.placa %></td>
+                        <td><%= veiculos.entrada.toString().substring(15, 24) %></td>
+                        <td><%= veiculos.saida %></td>
+                        <td><%= veiculos.preco.replace('.', ',') %></td>
+                        <td><%= veiculos.desconto.replace('.', ',') %></td>
+                        <td><%= veiculos.descricao == null ? 'Não' : veiculos.descricao == 'null' ? 'Não' : 'Sim' %></td>
+                      </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+        </div>
+        <div class="mt-2">
+            <h4>Total: <span><%= total.replace('.', ',') %></span></h4>
+        </div>
+    </div>
+    <div class="p-4 d-flex justify-content-between" style="width: 100%;">
+        <div style="width: 45%;">
+            <h4 class="text-center">Gráfico Mensal</h4>
+            <canvas id="charts"></canvas>
+        </div>
+        <div style="width: 45%; height: 20%;">
+            <h4 class="text-center">Gráfico Semanal e Diário</h4>
+            <canvas id="charts2"></canvas>
+        </div>
+    </div>
+</main>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script>
+
+    $('document').ready(function() {
+
+        $('table').DataTable();
+
+        $.ajax({
+            type: 'GET',
+            url: '/relat',
+            dataType: 'json',
+            success: data => {
+                var mes = []
+                var total = []
+                var vei = []
+                var week = []
+                var to = []
+
+                for(var i = 0; i < data.relat.length; i++){
+                    mes.push(data.relat[i]['mes'])
+                    total.push(data.relat[i]['sum'])
+                    vei.push(data.relat[i]['t'])
+                }
+
+                for(var i = 0; i < data.dif.length; i++){
+                    week.push(data.dif[i]['test'] == '0' ? 'Dom' :
+                    data.dif[i]['test'] == '1' ? 'Seg' :
+                    data.dif[i]['test'] == '2' ? 'Ter' :
+                    data.dif[i]['test'] == '3' ? 'Qua' : 
+                    data.dif[i]['test'] == '4' ? 'Qui' : 
+                    data.dif[i]['test'] == '5' ? 'Sex' :
+                    data.dif[i]['test'] == '6' ? 'Sab' : 'Null')
+                    to.push(data.dif[i]['sum'])
+                }
+
+                grafico(mes, total, vei)
+                grafico2(week, to)
+            }
+        })
+    })
+
+    function grafico(arraymes, arraytotal, arrayvei){
+        var ctx = document.getElementById("charts")
+
+        var chartGraph = new Chart(ctx, {
+            type: 'line',
+            options: {
+                responsitve: true
+            },
+            data: {
+                labels: arraymes,
+                datasets: [
+                    {
+                        label: 'Total Bruto Mensal',
+                        data: arraytotal,
+                        borderWidth: 6,
+                        backgroundColor: 'transparent',
+                        borderColor: 'blue'                
+                    },
+                    {
+                        label: 'Nº Veic',
+                        data: arrayvei,
+                        borderWidth: 6,
+                        backgroundColor: 'transparent',
+                        borderColor: 'red'
+                    }
+                ]
+            }
+        })
+    }
+
+    function grafico2(arrayweek, arrayto){
+        var ctxx = document.getElementById('charts2')
+
+        var chartGraph = new Chart(ctxx, {
+            type: 'pie',
+            options: {
+                responsitve: true
+            },
+            data: {
+                labels: arrayweek,
+                datasets: [
+                    {
+                        label: 'Total Bruto Mensal',
+                        data: arrayto,
+                        borderWidth: 1,
+                        backgroundColor: ['green', 'purple', 'yellow', 'grey', 'pink', 'orange', 'teal'],      
+                    }
+                ]
+            }
+        })
+    }
+    
+
+    /* function total(){
+        var today = document.getElementById('dateInit').value
+        var ends = document.getElementById('dateEnd').value
+        
+        $.ajax({
+            method: 'POST',
+            url: '/relatorio',
+            data: {
+                hoje: today,
+                fim: ends
+            },
+            complete: (xhr) => {
+                response = xhr.responseJSON;
+                console.log(response.veiculos.rows[0].placa)
+                var itens = '';
+                for(let i = 0; response.veiculos.rows.length > i; i++){
+                    itens += "<tr>"
+                    itens += "<td>" + response.veiculos.rows[i].placa + "</td>"
+                    itens += "<td>" + response.veiculos.rows[i].entrada.toString().substring(11, 19) + "</td>"
+                    itens += "<td>" + response.veiculos.rows[i].saida + "</td>"
+                    itens += "<td>" + response.veiculos.rows[i].preco.replace('.', ',') + "</td>"
+                    itens += "</tr>"
+                }
+                $('#tbody').empty().append(itens)
+            }
+        })
+    } */
+</script>

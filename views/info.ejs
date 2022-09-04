@@ -4,14 +4,24 @@
     <div>
         <form action="/fnsh" method="POST">
             <div class="mt-5 d-flex justify-content-between p-2">
-                <div>
-                    <label class="form-label">Placa: </label>
-                    <input name="inputplaca" value="<%= placa %>" class="form-control" type="text" required />
+                <div class="row align-items-end">
+                    <div class="col">
+                        <label class="form-label">Placa: </label>
+                        <input name="inputplaca" value="<%= placa %>" class="form-control" type="text" required />
+                    </div>
+                    <div class="col">
+                        <a id="addCort" class="btn btn-warning" onclick="addCortesia()">Adicionar Cortesia</a>
+                        <a id="rmCort" class="btn btn-warning d-none" onclick="rmCortesia()">Retirar Cortesia</a>
+                    </div>
+                    <input class="d-none" id="cortesia" name="cortesia" type="text" value="Cortesia" disabled />
                 </div>
                 <div>
                     <label class="form-label p-2" style="font-weight: bold; font-size: 50px;">Total:</label>
                     <label id="total" class="p-2" style="font-weight: bold; font-size: 50px;"><%= valor %></label>
                 </div>
+            </div>
+            <div>
+                <h4 id="warning" class="text-center d-none p-2" style="color: red;">Atenção: Você está adicionando uma cortesia para esse cliente!</h4>
             </div>
             <div class="mt-3 row justify-content-center">
                 <div class="col-2 mt-2">
@@ -30,7 +40,7 @@
                     <label class="form-label">Valor a ser pago: </label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
-                        <input id="preco" name="inputpay" class="form-control" value="<%= valor %>" type="text" required/>
+                        <input id="preco" name="inputpay" class="form-control" value="<%= valor %>" onkeypress="$(this).mask('#.##0,00', {reverse: true})" type="text" required/>
                     </div>
                     <div class="d-none">
                         <span class="input-group-text">$</span>
@@ -41,7 +51,7 @@
                     <label class="form-label">Desconto: </label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
-                        <input id="desconto" name="inputdesc" class="form-control" value="0,00" type="text"/>
+                        <input id="desconto" name="inputdesc" class="form-control" value="0,00" onkeypress="$(this).mask('#.##0,00', {reverse: true})" type="text"/>
                     </div>
                 </div>
             </div>
@@ -55,6 +65,8 @@
         </form>
     </div>
 </main>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
 <script>
     var preco = document.getElementById('preco')
     var desconto = document.getElementById('desconto')
@@ -62,6 +74,25 @@
 
     console.log(parseFloat(preco.value))
     console.log(parseFloat(desconto.value))
+
+    function addCortesia(){
+        var cortesia = document.getElementById('cortesia')
+        cortesia.disabled = false
+        document.getElementById('addCort').classList.add('d-none')
+        document.getElementById('rmCort').classList.remove('d-none')
+        document.getElementById('warning').classList.remove('d-none')
+        document.getElementById('desconto').value = '<%= valor %>'
+        document.getElementById('total').innerHTML = '0,00'
+    }
+
+    function rmCortesia(){
+        document.getElementById('cortesia').disabled = true
+        document.getElementById('addCort').classList.remove('d-none')
+        document.getElementById('rmCort').classList.add('d-none')
+        document.getElementById('warning').classList.add('d-none')
+        document.getElementById('desconto').value = '0,00'
+        document.getElementById('total').innerHTML = '<%= valor %>'
+    }
 
     preco.addEventListener('keyup', () =>{
         var total = parseFloat(preco.value.replace(',', '.')) - parseFloat(desconto.value.replace(',', '.'))

@@ -18,7 +18,7 @@
       <h3>Saída de Veículos</h3>
       <div class="col-3">
         <label class="form-label">Placa</label>
-        <input type="text" name="plac" class="form-control" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
+        <input type="text" name="plac" class="form-control" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa2" required/>
       </div>
       <div class="col-4 ms-auto p-2">
         <button type="submit" class="btn btn-outline-success">Registrar Saída</button>
@@ -26,30 +26,36 @@
     </form>
 
     <div>
-      <table class="table text-center mt-5">
-        <thead>
-          <tr>
-            <th scope="col">Placa</th>
-            <th scope="col">Entrada</th>
-            <th scope="col">Saída</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% vec.forEach(function(vec){ %>
-            <% if(vec.saida == null){ %>
-              <tr>
-                <td><%= vec.placa %></td>
-                <td><%= vec.entrada.toString().substring(15, 24) %></td>
-                <% if(vec.saida == null){ %>
-                  <td style="color: green;">Pátio</td>
-                <% }else{ %>
-                  <td><%= vec.saida.toString().substring(15, 24) %></td>
-                <% } %>
-              </tr>
-            <% } %>
-          <% }) %>
-        </tbody>
-      </table>
+      <% if(vec[0] == null || vec[0] == undefined){ %>
+        <div class="row mx-auto w-50 mt-5">
+          <h4>Não há veículos no pátio.</h4>
+        </div>
+      <% } else { %>
+        <table class="table text-center mt-5">
+          <thead>
+            <tr>
+              <th scope="col">Placa</th>
+              <th scope="col">Entrada</th>
+              <th scope="col">Saída</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% vec.forEach(function(vec){ %>
+              <% if(vec.saida == null){ %>
+                <tr>
+                  <td><%= vec.placa %></td>
+                  <td><%= vec.entrada.toString().substring(15, 24) %></td>
+                  <% if(vec.saida == null){ %>
+                    <td style="color: green;">Pátio</td>
+                  <% }else{ %>
+                    <td><%= vec.saida.toString().substring(15, 24) %></td>
+                  <% } %>
+                </tr>
+              <% } %>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
       <!-- <table class="table text-center">
         <thead>
           <tr>
@@ -78,10 +84,13 @@
     <script>
       var entrar = document.getElementById('enter')
       var sair = document.getElementById('exit')
-
+      var inp2 = document.getElementById('placa2')
       var inp = document.getElementById('placa')
       addEventListener('input', () => {
         inp.value = inp.value.toUpperCase();
+      })
+      addEventListener('input', () => {
+        inp2.value = inp2.value.toUpperCase();
       })
 
       document.addEventListener('keydown', e=> {

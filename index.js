@@ -21,7 +21,7 @@ app.use('/', register)
 app.get('/', async (req, res) => {
     /* var error = req.flash("errorRegister")
     error = ( error == undefined || error.length == 0) ? undefined : error */
-    var select = await knex('veicles').select().where({})
+    var select = await knex('veicles').select().whereNull("saida")
     res.render('init', {vec: select})
 })
 
