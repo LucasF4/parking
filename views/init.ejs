@@ -1,17 +1,56 @@
 <%- include('./partials/head.ejs') %>
 <%- include('./partials/nav.ejs') %>
+
+<style>
+  tbody tr:hover{
+    background-color: rgb(220, 220, 220);
+    cursor: pointer;
+  }
+</style>
+
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
   <body>
+    <% if(success){ %>
+      <div class="alert alert-success mt-2" role="alert">
+        <%= success %>
+      </div>
+    <% } %>
+    <% if(erro){ %>
+      <div class="alert alert-danger mt-2" role="alert">
+        <%= erro %>
+      </div>
+    <% } %>
     <p>[F2] - Entrada de Veículos / [F8] - Saída de Veículos</p>
     <form action="/register" method="post" class="mt-4 row" id="enter" >
       <h3>Entrada de Veículos</h3>
       <div class="col-3">
         <label class="form-label">Placa</label>
-        <input type="text" name="plac" class="form-control" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
+        <input type="text" name="plac" class="form-control col-sm-3" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
       </div>
       <div class="col-4 ms-auto p-2">
-        <button type="submit" class="btn btn-outline-success">Registrar Entrada</button>
+        <button type="button" class="btn btn-outline-success" onclick="showModal()">Registrar Entrada</button>
       </div>
+
+      <div id="modal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Título do modal</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Fechar" onclick="closeModal()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p id="info"></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" onclick="closeModal()" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+              <button type="submit" class="btn btn-primary">Salvar mudanças</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </form>
 
     <form action="/payment" method="post" class="mt-4 row d-none" id="exit" >
@@ -114,6 +153,32 @@
             sair.classList.remove('d-none')
           }
       }
+
+      function showModal(){
+        var placaLength = document.getElementById('placa').value
+        if(placaLength.length < 8){
+          alert('Veículo Inválido')
+          return;
+        }
+        document.getElementById('info').innerHTML = 'Placa a ser inserida: ' + placaLength + '. <br> Deseja Continuar?'
+        document.getElementById('modal').classList.add('d-block')
+      }
+
+      function closeModal(){
+        document.getElementById('modal').classList.remove('d-block')
+      }
+
+        
+      const tr = document.querySelectorAll('tbody tr')
+      tr.forEach(function(e){
+        e.addEventListener('click', (resultado) => {
+          var placaValue = resultado.srcElement.parentElement.children[0].textContent
+          entrar.classList.add('d-none')
+          sair.classList.remove('d-none')
+          document.getElementById('placa2').value = placaValue
+        })
+      })
+      
     </script>
   </body>
 </main>

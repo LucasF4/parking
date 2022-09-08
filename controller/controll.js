@@ -2,6 +2,28 @@ const express = require('express')
 const router = express.Router()
 const moment = require('moment')
 const knex = require('../Database/connection.js')
+const auth = require('../middleware/auth.js')
+
+router.post('/login', async (req, res) => {
+    var { email, password } = req.body
+    var conf = await knex('users').select().where({username: email}).andWhere({senha: password})
+    var today = moment().format('YYYY-MM-DD')
+
+    if(conf[0] != undefined){
+        if(conf[0]['license'] == 'ilimitado' || conf[0]['license'] <= today){
+            req.session.user = conf[0].username
+            res.redirect('/')
+        }else{
+            var erro = `Sua Licença Expirou, entre em contato com o desenvolvedor.`
+            req.flash('erroLogin', erro)
+            res.redirect('/login')
+        }
+    }else{
+        var erro = `Credenciais Incorretas`
+        req.flash('erroLogin', erro)
+        res.redirect('/login')
+    }
+})
 
 router.post('/register', async (req, res) => {
     var { plac } = req.body
@@ -14,11 +36,15 @@ router.post('/register', async (req, res) => {
         await knex.raw(`INSERT INTO veicles (placa, entrada, saida, estadia, preco) VALUES ('${plac}', now(), null, null, null) `)
         .then(() => {
             console.log('Inserido!')
+            var success = `Inserido com sucesso`
+            req.flash('success', success)
             res.redirect('/')
         })
         .catch( err => console.log(err) )
     }else{
-        res.send("Veículo já registrado")
+        var erro = `Veículo já registrado`
+        req.flash('erroLogin', erro)
+        res.redirect('/')
     }
 })
 
@@ -45,15 +71,16 @@ router.post('/payment', async (req, res) => {
             var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' +(parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
             console.log(tempo)
             
-            if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30){
+            if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
                 preco = preco + 2;
                 console.log('Preço é de ' + preco)
-            }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30){
+            }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
                 preco = preco + 4
                 console.log('Preço é de ' + preco)
             }else{
                 var i = 0;
                 var k = 0;
+                var j = 0;
                 preco = 4;
 
                 do{
@@ -65,22 +92,30 @@ router.post('/payment', async (req, res) => {
                         i = 0;
                         k++
                     }
+                    if(k == 24){
+                        k = 0;
+                        j++
+                    }
 
-                }while(i < parseInt(dias['_data']['minutes'].toString().replace('-', '')) || k < parseInt(dias['_data']['hours'].toString().replace('-', '')))
-                console.log(k + ':' + i)
+                }while(i < parseInt(dias['_data']['minutes'].toString().replace('-', '')) || k < parseInt(dias['_data']['hours'].toString().replace('-', '')) || j < parseInt(dias['_data']['days'].toString().replace('-', '')))
+                //|| j < parseInt(dias['_data']['days'].toString().replace('-', ''))
+                console.log(j + ':' + k + ':' + i)
+                //console.log('-----------> ' + j)
                 console.log('Preço total: ' + preco)
-                console.log(parseInt(dias['_data']['days'].toString()))
+                //console.log(parseInt(dias['_data']['days'].toString()))
             }
 
 
-            res.render('info', {placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replace('.', ',') + '0' : preco.toString() + ',00'})
+            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replace('.', ',') + '0' : preco.toString() + ',00'})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)
         .then(() => res.redirect('/'))
         .catch( err => console.log(err)) */
     }else{
-        res.send('Veículo não Registrado')
+        var erro = `Veículo não registrado!`
+        req.flash('erroLogin', erro)
+        res.redirect('/')
     }
 })
 
@@ -103,24 +138,28 @@ router.post('/fnsh', async (req, res) => {
     .catch( err => console.log(err) )
 })
 
-router.get('/relatorio', async (req, res) => {
+router.get('/relatorio', auth, async (req, res) => {
     var today = moment().startOf('month').format('YYYY-MM-DD')
     var ends = moment().endOf('month').format('YYYY-MM-DD')
-    var veiculos = await knex.raw(`SELECT * FROM veicles WHERE entrada > '${today}' AND entrada < '${ends}' AND saida is not null`)
-    var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM veicles WHERE entrada > '${today}' AND entrada < '${ends}') a`)
+    var hoje = moment().format('YYYY-MM-DD')
+    //var veiculos = await knex.raw(`SELECT * FROM veicles WHERE entrada > '${today}' AND entrada < '${ends}' AND saida is not null`)
+    var veiculos = await knex.raw(`SELECT * FROM veicles WHERE CAST(entrada as date) = '${hoje}' and saida is not null ORDER BY id ASC`)
+    //var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM veicles WHERE entrada > '${today}' AND entrada < '${ends}') a`)
+    var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM veicles WHERE CAST(entrada as date) = '${hoje}' and saida is not null) a`)
     //var qnt = await knex.raw(`select count(*) from veicles WHERE estadia is not null`)
     //console.log(preco.rows[0]['sum'])
     //console.log(qnt.rows)
     var total = preco.rows[0]['sum']
-    total = (total == undefined || total.length == 0) ? undefined : total
-    res.render('relatorio', {veiculos: veiculos.rows, total: total, hoje: today, fim: ends})
+    total = (total == undefined || total.length == 0 || total == null) ? '0.00' : total
+    res.render('relatorio', {veiculos: veiculos.rows, total: total, hoje: today, fim: ends, today: hoje})
 })
 
-router.get('/relat', async (req, res) => {
+router.get('/relat', auth, async (req, res) => {
 
     //var initweek = moment().startOf('week').format('YYYY-MM-DD')
     var initweek = moment().subtract(6, 'days').format('YYYY-MM-DD')
     var today = moment().format('YYYY-MM-DD')
+    var user = req.session.user
 
     var relat = await knex.raw(`SELECT SUM(preco - desconto), COUNT(*) as t, (ARRAY[
         'Jan',
@@ -141,7 +180,30 @@ router.get('/relat', async (req, res) => {
     var dif = await knex.raw(`SELECT extract(dow from entrada) as test, SUM(preco - desconto)
     FROM veicles WHERE CAST(entrada as date) >= '${initweek}' and CAST(entrada as date) <= '${today}' GROUP BY test`)
 
-    res.json({relat: relat.rows, dif: dif.rows})
+    var day = await knex.raw(`SELECT SUM(veicles.preco - veicles.desconto)
+        FROM veicles WHERE CAST(veicles.entrada as date) = '${today}'`)
+
+    var meta = await knex('users').where({username: user})
+
+    res.json({relat: relat.rows, dif: dif.rows, today: day.rows, meta: meta[0]['meta']})
+})
+
+router.get('/aboutme', auth, async (req, res) => {
+    var user = req.session.user;
+    var perm = await knex('users').select().where({username: user})
+    console.log(perm)
+    if(perm[0] != undefined){
+        res.render('dataperson', {name: perm[0].username, email: perm[0].email, license: perm[0].license})
+    }else{
+        res.redirect('/login')
+    }
+})
+
+router.get('/logout', (req, res) => {
+    req.session.user = undefined;
+    var erro = `Sessão Encerrada`
+    req.flash("erroLogin", erro)
+    res.redirect('/login')
 })
 
 /* router.post('/relatorio', async (req, res) => {
