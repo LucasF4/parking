@@ -36,7 +36,7 @@
                     <label class="form-label">Estadia</label>
                     <input name="inputestadia" class="form-control" value="<%= dif %>" type="text" required readonly/>
                 </div>
-                <div class="col-2 mt-2">
+                <div class="col-md-2 col-sm-3 mt-2">
                     <label class="form-label">Valor: </label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
@@ -47,29 +47,35 @@
                         <input id="precoT" name="inputpayT" class="form-control" value="<%= valor %>" type="text" required readonly/>
                     </div>
                 </div>
-                <div class="col-2 mt-2">
+                <div class="col-md-2 col-sm-3 mt-2">
                     <label class="form-label">Desconto: </label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
                         <input id="desconto" name="inputdesc" class="form-control" value="0,00" onkeypress="$(this).mask('#.##0,00', {reverse: true})" type="text"/>
                     </div>
                 </div>
-                <div class="col-3 mt-2">
+                <div class="col-md-3 col-sm-3 mt-2">
                     <label class="form-label">Forma de Pagamento</label>
-                    <select class="form-control">
+                    <select name="formpag" class="form-control">
                         <option>Dinheiro</option>
                         <option>Crédito</option>
                         <option>Débito</option>
                         <option>Pix</option>
                     </select>
                 </div>
+                <!-- <div class="col-4">
+                    <label class="form-label">Valor Pago: </label>
+                    <input class="form-control" type="text" />
+                </div> -->
             </div>
             <div class="d-flex justify-content-end">
                 
             </div>
             <div class="row mt-5 mx-auto w-50">
                 <a href="/" class="btn btn-outline-primary mb-3">Voltar</a>
-                <button type="submit" class="btn btn-success">Finalizar</button>
+                <button type="submit" class="btn btn-success">
+                    Finalizar
+                  </button>
             </div>
         </form>
     </div>

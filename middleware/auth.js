@@ -4,7 +4,7 @@ function auth(req, res, next){
         //console.log(req.session)
         next()
     }else{
-        res.redirect('/login')
+        res.redirect('/home')
     }
 
 }

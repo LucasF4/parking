@@ -1,5 +1,10 @@
 <%- include('./partials/head.ejs') %>
 <%- include('./partials/nav.ejs') %>
+<style>
+    div.dataTables_filter, div.dataTables_length{
+        padding: 20px;
+    }
+</style>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
     <div class="p-4" style="border-bottom: 1px solid black;">
         <!-- <div class="row">
@@ -37,6 +42,22 @@
         <div class="mt-2">
             <h4>Total: <span><%= total.replace('.', ',') %></span></h4>
         </div>
+    </div>
+    <div class="mt-2" style="border-bottom: 1px solid black;">
+        <h4>Forma de Pagamento - Porcentagens</h4>
+        <% if(percent[0] == undefined){ %>
+            <p>Dinheiro 0%</p>
+            <p>Crédito 0%</p>
+            <p>Débito 0%</p>
+            <p>Pix 0%</p>
+        <% }else{ %>
+            <% percent.forEach(function(percent){ %>
+                <div>
+                    <div><p><%= percent['formpag'] %> <span class="progressBar"><%= ((percent['formpagd'] / all) * 100).toFixed() %>%</span></p></div>
+                </div>
+            <% }) %>
+        <% } %>
+        <div id="porcentagem"></div>
     </div>
     <div class="p-4 d-flex justify-content-between" style="width: 100%;">
         <div style="width: 45%;">
@@ -91,7 +112,7 @@
 
                 grafico(mes, total, vei)
                 grafico2(week, to)
-                console.log(data.today[0] == undefined ? 0 : data.today[0]['sum'])
+                //console.log(data.today[0] == undefined ? 0 : data.today[0]['sum'])
                 grafico3(data.today[0]['sum'], data.meta)
             }
         })

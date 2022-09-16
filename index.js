@@ -22,6 +22,8 @@ app.use(session({
 }))
 app.use(flash())
 
+app.use(express.static('public'))
+app.use('/src', express.static(__dirname + 'public/src'))
 app.set('views', path.join(__dirname + '/views'))
 app.set('view engine', 'ejs')
 
@@ -36,16 +38,29 @@ app.get('/login', (req, res) => {
     res.render('login', {erro: erro})
 })
 
+app.get('/home', (req, res) => {
+    res.render('home')
+})
+
 app.get('/', auth, async (req, res) => {
+    var db = req.session.user
     /* var error = req.flash("errorRegister")
     error = ( error == undefined || error.length == 0) ? undefined : error */
     var success = req.flash('success')
     var erro = req.flash('erroLogin')
+    var expire = req.flash('expire')
+    expire = (expire == undefined || expire.length == 0) ? undefined : expire
     success = (success == undefined || success.length == 0) ? undefined : success
     erro = (erro == undefined || erro.length == 0) ? undefined : erro
-    var select = await knex('veicles').select().whereNull("saida")
-    console.log(req.session)
-    res.render('init', {vec: select, success: success, erro: erro})
+    await knex(db).select().whereNull("saida").then(select => {
+        console.log(req.session)
+        res.render('init', {vec: select, success: success, erro: erro, expire: expire})
+    })
+    .catch(() => {
+        var erro = `Algo deu errado, entre em contato com o desenvolvedor! Erro: 1002`
+        req.flash('erroLogin', erro)
+        res.redirect('/login')
+    })
 })
 
 app.listen(PORT, () => {

@@ -2,9 +2,13 @@
 <%- include('./partials/nav.ejs') %>
 
 <style>
-  tbody tr:hover{
+  #table tbody tr:hover{
     background-color: rgb(220, 220, 220);
     cursor: pointer;
+  }
+
+  div.dataTables_length, div.dataTables_filter{
+    padding: 25px;
   }
 </style>
 
@@ -20,6 +24,13 @@
         <%= erro %>
       </div>
     <% } %>
+
+    <% if(expire){ %>
+      <div class="alert alert-danger mt-2" role="alert">
+        <%= expire %>
+      </div>
+    <% } %>
+
     <p>[F2] - Entrada de Veículos / [F8] - Saída de Veículos</p>
     <form action="/register" method="post" class="mt-4 row" id="enter" >
       <h3>Entrada de Veículos</h3>
@@ -28,10 +39,28 @@
         <input type="text" name="plac" class="form-control col-sm-3" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
       </div>
       <div class="col-4 ms-auto p-2">
-        <button type="button" class="btn btn-outline-success" onclick="showModal()">Registrar Entrada</button>
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="showModal()">Registrar Entrada</button>
       </div>
 
-      <div id="modal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Informações Do Pagamento</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div><p id="info"></p></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Registrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div id="modal" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -49,7 +78,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
       
     </form>
 
@@ -64,13 +93,13 @@
       </div>
     </form>
 
-    <div>
+    <div class="mt-4">
       <% if(vec[0] == null || vec[0] == undefined){ %>
-        <div class="row mx-auto w-50 mt-5">
+        <div class="row mx-auto w-50 my-auto">
           <h4>Não há veículos no pátio.</h4>
         </div>
       <% } else { %>
-        <table class="table text-center mt-5">
+        <table id="table" class="table text-center">
           <thead>
             <tr>
               <th scope="col">Placa</th>
@@ -120,7 +149,13 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script>
+
+      $('document').ready(function () {
+        $('table').DataTable();
+      })
+
       var entrar = document.getElementById('enter')
       var sair = document.getElementById('exit')
       var inp2 = document.getElementById('placa2')
