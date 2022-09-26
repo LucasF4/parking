@@ -4,40 +4,45 @@ const router = express.Router()
 const moment = require('moment')
 const knex = require('../Database/connection.js')
 const auth = require('../middleware/auth.js')
+const bcrypt = require('bcrypt')
 
 router.post('/login', async (req, res) => {
     var { email, password } = req.body
-    var conf = await knex('users').select().where({username: email}).andWhere({senha: password})
+    var conf = await knex('users').select().where({username: email})
     var today = moment().format('YYYY-MM-DD')
 
     if(conf[0] != undefined){
-        if(conf[0].username == 'master'){
-            req.session.user = conf[0].username
-            res.redirect('/adm-master')
-        }else{
-            if(conf[0]['license'] == 'ilimitado' || conf[0]['license'] >= today){
-                console.log(conf[0]['license'] + ' -> ' + today)
+        var corret = bcrypt.compareSync(password, conf[0].senha)
+        if(corret){
+            if(conf[0].username == process.env.MM){
                 req.session.user = conf[0].username
-                req.session.expire = conf[0].license
-                expire = (conf[0].license == today) ? 'Sua licença encerra hoje. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
-                req.flash('expire', expire)
-                res.redirect('/')
+                res.redirect('/adm-master')
             }else{
-                console.log(conf[0]['license'] + ' -> ' + today)
-                var erro = `Sua Licença Expirou, entre em contato com o desenvolvedor.`
-                req.flash('erroLogin', erro)
-                res.redirect('/login')
+                if(conf[0]['license'] == 'ilimitado' || conf[0]['license'] >= today){
+                    console.log(conf[0]['license'] + ' -> ' + today)
+                    req.session.user = conf[0].username
+                    req.session.expire = conf[0].license
+                    expire = (conf[0].license == today) ? 'Sua licença encerra hoje. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
+                    req.flash('expire', expire)
+                    res.redirect('/')
+                }else{
+                    console.log(conf[0]['license'] + ' -> ' + today)
+                    var erro = `Sua Licença Expirou.\nVeja nossas ofertas  e entre em contato com o Desenvolvedor.`
+                    req.flash('erroLogin', erro)
+                    res.redirect('/login')
+                }
             }
+        }else{
+            var erro = `Credenciais Incorretas`
+            req.flash('erroLogin', erro)
+            res.redirect('/login')
         }
+        
     }else{
         var erro = `Credenciais Incorretas`
         req.flash('erroLogin', erro)
         res.redirect('/login')
     }
-})
-
-router.get('/adm-master', auth, (req, res) => {
-    res.render('master/adm-master')
 })
 
 router.post('/register', auth, async (req, res) => {
@@ -95,10 +100,10 @@ router.post('/payment', auth, async (req, res) => {
             console.log(tempo)
             
             if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = preco + 2;
+                preco = 2;
                 console.log('Preço é de ' + preco)
             }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = preco + 4
+                preco = 4
                 console.log('Preço é de ' + preco)
             }else{
                 var i = 0;
@@ -191,7 +196,7 @@ router.get('/relat', auth, async (req, res) => {
     var today = moment().format('YYYY-MM-DD')
     var user = req.session.user
 
-    var relat = await knex.raw(`SELECT SUM(preco - desconto), COUNT(*) as t, (ARRAY[
+    await knex.raw(`SELECT SUM(preco - desconto), COUNT(*) as t, (ARRAY[
         'Jan',
         'Fev',
         'Mar',
@@ -206,27 +211,53 @@ router.get('/relat', auth, async (req, res) => {
         'Dez'
     ])[EXTRACT(MONTH FROM entrada)] as mes, extract(month from entrada) as data from ${db}
     group by mes, data order by data asc`)
+    .then(async relat => {
+        var dif = await knex.raw(`SELECT extract(dow from entrada) as test, SUM(preco - desconto)
+        FROM ${db} WHERE CAST(entrada as date) >= '${initweek}' and CAST(entrada as date) <= '${today}' GROUP BY test`)
 
-    var dif = await knex.raw(`SELECT extract(dow from entrada) as test, SUM(preco - desconto)
-    FROM ${db} WHERE CAST(entrada as date) >= '${initweek}' and CAST(entrada as date) <= '${today}' GROUP BY test`)
+        var day = await knex.raw(`SELECT SUM(${db}.preco - ${db}.desconto)
+            FROM ${db} WHERE CAST(${db}.entrada as date) = '${today}'`)
 
-    var day = await knex.raw(`SELECT SUM(${db}.preco - ${db}.desconto)
-        FROM ${db} WHERE CAST(${db}.entrada as date) = '${today}'`)
+        var meta = await knex('users').select().where({username: user})
 
-    var meta = await knex('users').select().where({username: user})
-
-    res.json({relat: relat.rows, dif: dif.rows, today: day.rows, meta: meta[0]['meta']})
+        res.json({relat: relat.rows, dif: dif.rows, today: day.rows, meta: meta[0]['meta']})
+    })
+    .catch(err => {
+        console.log(err)
+        res.redirect('/login')
+    })
+    
 })
 
 router.get('/aboutme', auth, async (req, res) => {
     var user = req.session.user;
     var perm = await knex('users').select().where({username: user})
-    console.log(perm)
+    //console.log(perm)
     if(perm[0] != undefined){
-        res.render('dataperson', {name: perm[0].username, email: perm[0].email, license: perm[0].license})
+        res.render('dataperson', {perm: perm[0]})
     }else{
         res.redirect('/login')
     }
+})
+
+router.get('/editPerson', auth, (req, res) => {
+    res.render('editPerson')
+})
+
+router.post('/uploadInfo', auth, async (req, res) => {
+    var { meta } = req.body
+    var user = req.session.user
+    console.log(meta + ' ' + user)
+
+    await knex.raw(`UPDATE users SET meta = '${meta}' WHERE username = '${user}'`)
+    .then( () => {
+        console.log('Dados atualizados')
+        res.redirect('/aboutme')
+    })
+    .catch( err => { 
+        console.log(err)
+        res.send('Error: 1005')
+    })
 })
 
 router.get('/logout', (req, res) => {

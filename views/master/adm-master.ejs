@@ -1,13 +1,253 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<%- include('../partials/head.ejs') %>
 <body>
-    <a href="/logout">Sing-Out</a>
-    <h1>Dashboard Usuário Master</h1>
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link lead" href="#">Pagamentos</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link lead" href="/logout">Sing-Out</a>
+              </li>
+            </ul>
+            
+          </div>
+        </div>
+      </nav>
+    
+    <div class="container p-3">
+      <% if(erro){ %>
+        <div class="alert alert-danger" role="alert">
+          <%= erro %>
+        </div>
+      <% } %>
+      <% if(success){ %>
+        <div class="alert alert-success" role="alert">
+          <%= success %>
+        </div>
+      <% } %>
+      <div class="d-flex justify-content-between container m-2">
+        <h1>Usuários Cadastrados</h1>
+        <div>
+          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <i class="fa-solid fa-circle-plus"></i> Novo Usuário
+          </button>
+        </div>
+      </div>
+      <hr>
+      <div class="col-md-5 mx-auto mb-5">
+        <label class="form-label">Procurar Usuários</label>
+        <input id="searchUser" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" onkeyup="search()">
+      </div>
+      <div class="d-flex justify-content-around" id="users">
+          <% result.forEach(function(result){ %>
+          <div class="card p-2" style="width: 20rem;">
+              <div class="card-body">
+                <h5 class="card-title"><%= result.username %></h5>
+                <p class="card-text">Vencimento da Licença: <%= result.license %></p>
+                <p class="card-text">E-mail: <%= result.email %></p>
+                <p class="card-text">Contato: <%= result.phone %></p>
+                <p class="card-text">CNPJ: <%= result.cnpj %></p>
+              </div>
+              <% if(today >= result.license){ %>
+                <button data-bs-toggle="modal" href="#modalEdit" class="btn btn-warning w-50 mx-auto mb-3">Renovar</button>
+              <% } %>
+              <button class="btn btn-danger w-50 mx-auto" onclick="del('<%= result.username %>', '<%= result.email %>')">Deletar</button>
+          </div>
+          <% }) %>
+      </div>
+
+      <form action="/renov" method="POST">
+        <div class="modal fade" id="modalEdit" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalToggleLabel">Renovação de Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body d-flex justify-content-around">
+  
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="1" id="1mescheck" checked>
+                  <label class="form-check-label" for="1mescheck">1 Mês</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="3" id="3mescheck">
+                  <label class="form-check-label" for="3mescheck">3 Meses</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="6" id="6mescheck">
+                  <label class="form-check-label" for="6mescheck">6 Meses</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="12" id="1anocheck">
+                  <label class="form-check-label" for="1anocheck">1 Ano</label>
+                </div>
+  
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-danger" type="button" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Cancelar</button>
+                <button class="btn btn-primary" type="submit" data-bs-toggle="modal">Renovar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      
+      <form action="/cad" method="post">
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Crianção De Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body d-flex justify-content-around">
+                
+                <div class="col-md-5">
+                  <label class="form-label">Nome do Usuário</label>
+                  <input id="user" type="text" class="form-control" name="username" required/>
+                </div>
+
+                <div class="col-md-5">
+                  <label class="form-label">E-mail</label>
+                  <input type="email" class="form-control" name="email" required/>
+                </div>
+
+              </div>
+              <div class="modal-body d-flex justify-content-around">
+
+                <div class="col-md-5">
+                  <label class="form-label">Senha</label>
+                  <input type="password" class="form-control" name="senha" required/>
+                </div>
+
+                <div class="col-md-5">
+                  <label class="form-label">Phone</label>
+                  <input type="text" class="form-control" name="phone" id="phone" maxlength="15" required/>
+                </div>
+
+
+              </div>
+
+              <div class="modal-body d-flex justify-content-center">
+                <div class="col-md-5">
+                  <label class="form-label">CNPJ <input class="form-check-input" type="checkbox" value="" id="checkcnpj" disabled></label>
+                  <input id="cnpj" type="text" class="form-control" name="cnpj" required>
+                  <div><p id="consulta" class="text-center m-3"></p></div>
+                </div>
+              </div>
+
+              <div class="modal-body d-flex justify-content-around">
+
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="1" id="1mescheck" checked>
+                  <label class="form-check-label" for="1mescheck">1 Mês</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="3" id="3mescheck">
+                  <label class="form-check-label" for="3mescheck">3 Meses</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="6" id="6mescheck">
+                  <label class="form-check-label" for="6mescheck">6 Meses</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="pag" value="12" id="1anocheck">
+                  <label class="form-check-label" for="1anocheck">1 Ano</label>
+                </div>
+
+              </div>
+
+              <div id="separator"></div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="sendUser" type="submit" class="btn btn-success">Save Settings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script>
+      $('document').ready(()=>{
+        $('#cnpj').mask('00.000.000/0000.00')
+        $('#phone').mask('(99) 99999-9999')
+      })
+
+      function del(username, email){
+        var confirmar = confirm(`Você deseja deletar o usuário ${username}?`)
+        if(!confirmar){
+          return;
+        }
+        //console.log(username + ' ' + email)
+        fetch('/del',{
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: username,
+            email: email
+          })
+        })
+        .then(() => {
+          document.location.reload()
+        })
+      }
+
+      function search(){
+        let input = document.getElementById('searchUser').value
+        input = input.toLowerCase()
+        let x = document.getElementsByClassName('card')
+        
+        for(i = 0; i < x.length; i++){
+          if(!x[i].innerHTML.toLowerCase().includes(input)){
+            x[i].style.display = "none"
+          }else{
+            x[i].style.display ="flex"
+          }
+        }
+      }
+
+      var cnpj = document.getElementById('cnpj')
+      cnpj.addEventListener('keyup', () => {
+        if(cnpj.value.length == 18){
+          var formated = cnpj.value.replaceAll('.', '').replace('/', '')
+          $.ajax({
+            url: 'https://www.receitaws.com.br/v1/cnpj/' + formated,
+            method: 'GET',
+            dataType: 'jsonp',
+            complete: (xhr) => {
+              response = xhr.responseJSON;
+              //console.log(response)
+              if(response != undefined){
+                if(response.status == 'OK' && response.situacao == 'ATIVA'){
+                  document.getElementById('checkcnpj').checked = true
+                  document.getElementById('user').value = response.fantasia
+                  document.getElementById('phone').value = response.telefone
+                }else{
+                  document.getElementById('consulta').innerHTML = (response.situacao == undefined) ? 'CNPJ Inválido' : response.situacao
+                  document.getElementById('sendUser').disabled = true
+                }
+              }else{
+                document.getElementById('consulta').innerHTML = 'Tente novamente em 1 minuto'
+              }
+              
+            }
+          })
+        }else{
+          document.getElementById('checkcnpj').checked = false
+          document.getElementById('consulta').innerHTML = ''
+          document.getElementById('sendUser').disabled = false
+        }
+      })
+
+    </script>
 </body>
 </html>

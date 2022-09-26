@@ -6,6 +6,7 @@ const app = express()
 const knex = require('./Database/connection')
 const bodyParser = require('body-parser')
 const register = require('./controller/controll')
+const master = require('./controller/mastercontroll')
 const PORT = process.env.PORT || 7575
 const auth = require('./middleware/auth.js')
 
@@ -31,6 +32,7 @@ app.use(bodyParser.urlencoded())
 app.use(bodyParser.json())
 
 app.use('/', register)
+app.use('/', master)
 
 app.get('/login', (req, res) => {
     var erro = req.flash("erroLogin")
