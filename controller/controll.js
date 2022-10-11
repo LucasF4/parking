@@ -24,6 +24,7 @@ router.post('/login', async (req, res) => {
                     req.session.user = conf[0].username
                     req.session.expire = conf[0].license
                     expire = (conf[0].license == today) ? 'Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
+                    
                     req.flash('expire', expire)
                     res.redirect('/')
                 }else{
