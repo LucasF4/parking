@@ -35,8 +35,8 @@
 
             <div class="mt-4 d-flex justify-content-between">
                 <div>
-                    <p>Licença acaba em: <%= perm.license %></p>
-                    <p>Data do Pagamento: <%= perm.created %></p>
+                    <p id="license"></p>
+                    <p id="payday"></p>
                     <% if(perm.pag != 1 ){ %>
                         <p>Duração: <%= perm.pag %> meses</p>
                     <% }else if(perm.pag == 12){ %>
@@ -53,4 +53,15 @@
         </div>
         
     </div>
+    <script>
+        var asdata = '<%= perm.license %>'
+        var date = new Date(asdata)
+        var format = date.toLocaleDateString('pt-BR', {timeZone: 'UTC'})
+        document.getElementById("license").innerHTML = 'Licença acaba em: ' + format
+        var asdate2 = '<%= perm.created %>'
+        var date2 = new Date(asdate2)
+        var format2 = date2.toLocaleDateString('pt-BR', {timeZone: 'UTC'})
+        document.getElementById("payday").innerHTML = 'Data do Pagamento: ' + format2
+        
+    </script>
 </main>

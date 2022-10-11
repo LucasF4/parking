@@ -118,7 +118,7 @@ router.post('/cad', auth, async (req, res) => {
         }else{
             var erro = `O CNPJ informado contém restrinções.`
             req.flash('erroLogin', erro)
-            res.redirect('adm-master')
+            res.redirect('/adm-master')
         }
     })
     .catch( err => {
@@ -132,11 +132,33 @@ router.post('/cad', auth, async (req, res) => {
     
 })
 
-router.post('/renov', (req, res) => {
-    var { pag } = req.body
-    var license = moment().add(pag, 'month').format('YYYY-MM-DD')
+router.post('/renov', async (req, res) => {
+    var { pag, username } = req.body
+    var today = moment().format('YYYY-MM-DD')
+    //var license = moment().add(pag, 'month').format('YYYY-MM-DD')
 
-    console.log(pag + ' ' + license)
+    var selectUsers = await knex("users").select().where({username: username})
+
+    console.log(`Hoje: ${today} / Licensa: ${selectUsers[0]['license']}`)
+
+    var license = moment(selectUsers[0]['license']).add(pag, 'month').format('YYYY-MM-DD')
+    console.log(selectUsers[0]['license'])
+
+    console.log(pag + ' ' + username)
+
+    await knex("users").where({username: username}).update({
+        pag: pag,
+        license: license
+    })
+    .then( () => {
+        console.log('Usuário renovado com sucesso!')
+        res.redirect('/adm-master')
+    })
+    .catch(err => {
+        console.log(err)
+        console.log('Erro ao tentar renovar usuario.')
+    })
+    
 })
 
 module.exports = router

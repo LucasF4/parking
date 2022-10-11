@@ -10,6 +10,7 @@ router.post('/login', async (req, res) => {
     var { email, password } = req.body
     var conf = await knex('users').select().where({username: email})
     var today = moment().format('YYYY-MM-DD')
+    var fivedays = moment().subtract(5,'days').format('YYYY-MM-DD')
 
     if(conf[0] != undefined){
         var corret = bcrypt.compareSync(password, conf[0].senha)
@@ -19,10 +20,11 @@ router.post('/login', async (req, res) => {
                 res.redirect('/adm-master')
             }else{
                 if(conf[0]['license'] == 'ilimitado' || conf[0]['license'] >= today){
-                    console.log(conf[0]['license'] + ' -> ' + today)
+                    console.log(conf[0]['license'] + ' -> ' + today + '->' + fivedays)
                     req.session.user = conf[0].username
                     req.session.expire = conf[0].license
-                    expire = (conf[0].license == today) ? 'Sua licença encerra hoje. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
+                    expire = (conf[0].license == today) ? 'Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!' :
+                    (conf[0].license >= today) ? `Sua licença encerra dia ${moment(conf[0].license).format('DD/MM/YYYY')}. Realize o pagamento e entre em contato com o Desenvolvedor!` : undefined
                     req.flash('expire', expire)
                     res.redirect('/')
                 }else{
@@ -170,7 +172,7 @@ router.post('/fnsh', auth, async (req, res) => {
 })
 
 router.get('/relatorio', auth, async (req, res) => {
-    var today = moment().startOf('month').format('YYYY-MM-DD')
+    var today = moment().format('DD/MM/YYYY')
     var ends = moment().endOf('month').format('YYYY-MM-DD')
     var hoje = moment().format('YYYY-MM-DD')
     var db = req.session.user
@@ -241,15 +243,25 @@ router.get('/aboutme', auth, async (req, res) => {
 })
 
 router.get('/editPerson', auth, (req, res) => {
-    res.render('editPerson')
+    var maintenance = '0';
+    if(maintenance == '1'){
+        res.render('erros/404')
+    }else{
+        res.render('editPerson')
+    }
+})
+
+router.get('/contact', (req, res) => {
+    res.render('contact')
 })
 
 router.post('/uploadInfo', auth, async (req, res) => {
     var { meta } = req.body
+    var meta1 = meta.replace(',', '.')
     var user = req.session.user
     console.log(meta + ' ' + user)
 
-    await knex.raw(`UPDATE users SET meta = '${meta}' WHERE username = '${user}'`)
+    await knex.raw(`UPDATE users SET meta = '${meta1}' WHERE username = '${user}'`)
     .then( () => {
         console.log('Dados atualizados')
         res.redirect('/aboutme')

@@ -4,12 +4,16 @@
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
         <div>
             <form method="post" action="/uploadInfo">
-                <div>
+                <div class="col-3">
                     <label class="form-label">Meta</label>
-                    <input name="meta" type="text" class="form-control">
+                    <input name="meta" type="text" class="form-control" onkeypress="$(this).mask('#.##0,00', {reverse: true})" required >
                 </div>
-                <button type="submit">Teste</button>
+                <button type="submit" class="btn btn-success mt-3">Teste</button>
             </form>
         </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
 </body>
 </html>

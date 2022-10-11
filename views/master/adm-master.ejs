@@ -5,7 +5,7 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link lead" href="#">Pagamentos</a>
+                <a class="nav-link lead" href="#">Gerencia</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link lead" href="/logout">Sing-Out</a>
@@ -52,48 +52,49 @@
               </div>
               <% if(today >= result.license){ %>
                 <button data-bs-toggle="modal" href="#modalEdit" class="btn btn-warning w-50 mx-auto mb-3">Renovar</button>
+                <form action="/renov" method="POST">
+                  <div class="modal fade" id="modalEdit" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalToggleLabel">Renovação de Usuário <%= result.username %></h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-around">
+                          <input type="text" name="username" value="<%= result.username %>" hidden readonly>
+                          <div class="form-check">
+                            <input type="radio" class="form-check-input" name="pag" value="1" id="1mescheck" checked>
+                            <label class="form-check-label" for="1mescheck">1 Mês</label>
+                          </div>
+                          <div class="form-check">
+                            <input type="radio" class="form-check-input" name="pag" value="3" id="3mescheck">
+                            <label class="form-check-label" for="3mescheck">3 Meses</label>
+                          </div>
+                          <div class="form-check">
+                            <input type="radio" class="form-check-input" name="pag" value="6" id="6mescheck">
+                            <label class="form-check-label" for="6mescheck">6 Meses</label>
+                          </div>
+                          <div class="form-check">
+                            <input type="radio" class="form-check-input" name="pag" value="12" id="1anocheck">
+                            <label class="form-check-label" for="1anocheck">1 Ano</label>
+                          </div>
+            
+                        </div>
+                        <div class="modal-footer">
+                          <button class="btn btn-danger" type="button" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Cancelar</button>
+                          <button class="btn btn-primary" type="submit" data-bs-toggle="modal">Renovar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
               <% } %>
               <button class="btn btn-danger w-50 mx-auto" onclick="del('<%= result.username %>', '<%= result.email %>')">Deletar</button>
           </div>
           <% }) %>
       </div>
 
-      <form action="/renov" method="POST">
-        <div class="modal fade" id="modalEdit" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel">Renovação de Usuário</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body d-flex justify-content-around">
-  
-                <div class="form-check">
-                  <input type="radio" class="form-check-input" name="pag" value="1" id="1mescheck" checked>
-                  <label class="form-check-label" for="1mescheck">1 Mês</label>
-                </div>
-                <div class="form-check">
-                  <input type="radio" class="form-check-input" name="pag" value="3" id="3mescheck">
-                  <label class="form-check-label" for="3mescheck">3 Meses</label>
-                </div>
-                <div class="form-check">
-                  <input type="radio" class="form-check-input" name="pag" value="6" id="6mescheck">
-                  <label class="form-check-label" for="6mescheck">6 Meses</label>
-                </div>
-                <div class="form-check">
-                  <input type="radio" class="form-check-input" name="pag" value="12" id="1anocheck">
-                  <label class="form-check-label" for="1anocheck">1 Ano</label>
-                </div>
-  
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-danger" type="button" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Cancelar</button>
-                <button class="btn btn-primary" type="submit" data-bs-toggle="modal">Renovar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
+      
       
       <form action="/cad" method="post">
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -120,18 +121,23 @@
 
                 <div class="col-md-5">
                   <label class="form-label">Senha</label>
-                  <input type="password" class="form-control" name="senha" required/>
+                  <input id="password" type="password" class="form-control" name="senha" required/>
                 </div>
 
+                <div class="col-md-5">
+                  <div id="tamanho"></div>
+                  <div id="numero"></div>
+                  <div id="caracteres"></div>
+                  <div id="letras"></div>
+                </div>
+
+              </div>
+
+              <div class="modal-body d-flex justify-content-around">
                 <div class="col-md-5">
                   <label class="form-label">Phone</label>
                   <input type="text" class="form-control" name="phone" id="phone" maxlength="15" required/>
                 </div>
-
-
-              </div>
-
-              <div class="modal-body d-flex justify-content-center">
                 <div class="col-md-5">
                   <label class="form-label">CNPJ <input class="form-check-input" type="checkbox" value="" id="checkcnpj" disabled></label>
                   <input id="cnpj" type="text" class="form-control" name="cnpj" required>
@@ -180,6 +186,36 @@
         $('#phone').mask('(99) 99999-9999')
       })
 
+      var password = document.getElementById('password')
+      
+      password.addEventListener('keyup', () => {
+        var numeros = /([0-9])/;
+        var alfabeto = /([a-zA-Z])/;
+        var chEspeciais = /([~,!,@,#,$,%,^,&,*,-,_,+,=,?,>,<])/;
+
+        if($('#password').val().length < 6){
+          $('#tamanho').html('<p style="color: red;">Tamanho insuficiente</p>')
+        }else{
+          $('#tamanho').html('<p style="color: green;">Tamanho Suficiente</p>')
+        }
+        if($('#password').val().match(numeros)){
+          $('#numero').html('<p style="color: green;">Sua senha deve conter numeros</p>')
+        }else{
+          $('#numero').html('<p style="color: red;">Sua senha deve conter numeros</p>')
+        }
+        if($('#password').val().match(alfabeto)){
+          $('#letras').html('<p style="color: green;">Sua senha deve ter números maiúsculos e minúsculos</p>')
+        }else{
+          $('#letras').html('<p style="color: red;">Sua senha deve ter números maiúsculos e minúsculos</p>')
+        }
+        if($('#password').val().match(chEspeciais)){
+          $('#caracteres').html('<p style="color: green;">Sua senha deve conter caracteres</p>')
+        }else{
+          $('#caracteres').html('<p style="color: red;">Sua senha deve conter caracteres</p>')
+        }
+
+      })
+
       function del(username, email){
         var confirmar = confirm(`Você deseja deletar o usuário ${username}?`)
         if(!confirmar){
@@ -200,6 +236,26 @@
           document.location.reload()
         })
       }
+
+      /* function renovar(username){
+        var confirmar = confirm(`Você deseja renovar a licença do usuário: ${username}`)
+        if(!confirmar){
+          return;
+        }
+
+        fetch('/renov', {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: username
+          })
+        })
+        .then(() => {
+          document.location.reload()
+        })
+      } */
 
       function search(){
         let input = document.getElementById('searchUser').value
