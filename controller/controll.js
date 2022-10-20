@@ -5,6 +5,8 @@ const moment = require('moment')
 const knex = require('../Database/connection.js')
 const auth = require('../middleware/auth.js')
 const bcrypt = require('bcrypt')
+const nodemailer = require('nodemailer')
+const {v4: uuidv4} = require('uuid')
 
 router.post('/login', async (req, res) => {
     var { email, password } = req.body
@@ -84,6 +86,8 @@ router.post('/payment', auth, async (req, res) => {
 
     console.log(`Placa: ${plac}`)
     var conferir = await knex(db).select().where({placa: plac}).andWhere({estadia: null})
+    var info = await knex('users').where({username: db})
+
     if(conferir[0] != undefined){
 
         await knex.raw(`SELECT *, now()::time, AGE(a.entrada, now()) FROM ${db} a WHERE placa = '${plac}' AND  estadia is null`)
@@ -100,23 +104,25 @@ router.post('/payment', auth, async (req, res) => {
             
             var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' +(parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
             console.log(tempo)
+
+            console.log(`Preço da tabela: ${info[0]['preco'] * 2}`)
             
             if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = 2;
+                preco = info[0]['preco'];
                 console.log('Preço é de ' + preco)
             }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = 4
+                preco = parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])
                 console.log('Preço é de ' + preco)
             }else{
                 var i = 0;
                 var k = 0;
                 var j = 0;
-                preco = 4;
+                preco = parseFloat(info[0]['preco']) + parseFloat(info[0]['preco']);
 
                 do{
                     i++
-                    if((i == 15 || i == 30 || i == 45 || i == 60) && k > 0){
-                        preco = preco + 1.50
+                    if((i % 15 === 0) && k > 0){
+                        preco = preco + parseFloat(info[0]['acrescimo'])
                     }
                     if(i == 60){
                         i = 0;
@@ -257,7 +263,7 @@ router.get('/contact', (req, res) => {
 
 router.post('/uploadInfo', auth, async (req, res) => {
     var { meta } = req.body
-    var meta1 = meta.replace(',', '.')
+    var meta1 = meta.replaceAll('.', '').replace(',', '.')
     var user = req.session.user
     console.log(meta + ' ' + user)
 
@@ -277,6 +283,109 @@ router.get('/logout', (req, res) => {
     var erro = `Sessão Encerrada`
     req.flash("erroLogin", erro)
     res.redirect('/login')
+})
+
+router.get('/forgot', (req, res) => {
+    var success = req.flash("success")
+    success = (success == undefined || success.length == 0) ? undefined : success
+    res.render('forgot', {success: success})
+})
+
+router.get('/search', async (req, res) => {
+    var { uuid } = req.query
+    req.session.ident = uuid
+    console.log(uuid)
+
+    var exist = await knex('users').where({recover: uuid})
+    console.log(exist)
+
+    if(exist[0] != undefined){
+        console.log("Redefina sua senha")
+        res.render('recover')
+    }else{
+        res.send("Page not found!")
+    }
+})
+
+router.post('/recover', async (req, res) => {
+    var { newPass, confirm } = req.body
+    var identificadorUniversal = req.session.ident
+
+    if(newPass != confirm){
+        res.redirect('/search?uuid=' + identificadorUniversal)
+    }else{
+        var salt = bcrypt.genSaltSync(10)
+        var hash = bcrypt.hashSync(newPass, salt)
+
+        await knex('users').where({recover: identificadorUniversal}).update({senha: hash})
+        .then( async () => {
+            await knex('users').where({recover: identificadorUniversal}).update({recover: null})
+            res.redirect('/login')
+        })
+        .catch(err => {
+            console.log('Ocorreu um erro: ' + err)
+            var erro = `Ocorreu um erro na mudança da senha, contatar o desenvolvedor.`
+            req.flash("erroLogin", erro)
+            res.redirect('/login')
+        })
+    }
+
+    
+})
+
+router.post('/forgot', async (req, res) => {
+    var {email} = req.body
+    var uuid = uuidv4()
+    console.log(uuid)
+
+    const teste = await knex('users').select().where({email: email})
+
+    if(teste[0] != undefined){
+
+        await knex('users').where({email: email}).update({recover: uuid})
+
+        var remetente = nodemailer.createTransport({
+            service: 'Hotmail',
+            port: 587,
+            auth: {
+                user: process.env.MAIL,
+                pass: process.env.PASSMAIL
+            }
+        })
+    
+        var sendEmail = {
+    
+            from: process.env.MAIL,
+            to: email,
+            subject: 'Recuperação de senha - NÃO RESPONDA', 
+            html: `
+                <h1>E-mail de redefinição de senha - <span style="color: red;">NÃO COMPARTILHE ESSE LINK PARA NINGUÉM</span></h1>
+                <p>Segue o link de redefinição da senha, por motivos de segurança, não compartilhe com ninguém! Se não foi você que solicitou, ignore esse e-mail, entre em contato com o desenvolvedor e altere sua senha.</p>
+                <br><a href="https://systenparking.herokuapp.com/search?uuid=${uuid}">Clique aqui para redefinir sua senha.</a>
+            `
+    
+        }
+    
+        remetente.sendMail(sendEmail, (err) => {
+            if(err){
+                console.log(err)
+                var erro = `Ocorreu um erro na tentantiva de enviar o email`
+                req.flash("erroLogin", erro)
+                res.redirect("/login")
+            }else{
+                console.log('Email enviado com sucesso!')
+                var success = `Email de recuperação Enviada para o email informado. Verifique sua caixa de mensagens ou sua lixeira!`
+                req.flash("success", success)
+                res.redirect("/forgot")
+            }
+        })
+    }else{
+        var erro = `E-mail não encontrado`
+        req.flash("erroLogin", erro)
+        res.redirect('/login')
+    }
+
+    
 })
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */

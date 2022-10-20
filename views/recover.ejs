@@ -18,30 +18,19 @@
   
               <div class="mb-md-5 mt-md-4 pb-5">
   
-                <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                <p class="text-white-50 mb-5">Please enter your login and password!</p>
+                <h2 class="fw-bold mb-2 text-uppercase">Recover my account</h2>
+                <p class="text-white-50 mb-5">Please enter your email!</p>
   
-                <form action="/login" method="POST">
+                <form action="/recover" method="POST">
                     <div class="form-outline form-white mb-4">
-
-                      <%if(erro){%>
-                        <div class="alert alert-danger" role="alert">
-                            <%=erro%>
-                        </div>
-                      <%}%>
-                        <input type="text" name="email" class="form-control form-control-lg" required />
-                        <label class="form-label">Username</label>
+                        <p id="warning" style="color: red;"></p>
+                        <input id="pass" type="text" name="newPass" class="form-control form-control-lg" required>
+                        <label class="form-label">Informe sua nova senha</label>
+                        <input id="confirm" type="text" name="confirm" class="form-control form-control-lg" required />
+                        <label class="form-label">Repia sua senha</label>
                       </div>
         
-                      <div class="form-outline form-white mb-4">
-                        <input type="password" name="password" class="form-control form-control-lg" required />
-                        <label class="form-label">Password</label>
-                      </div>
-        
-                      <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="/forgot">Forgot password?</a><br>or Contact the Developer</p>
-        
-                      <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-                      <a href="/home" class="btn btn-outline-light btn-lg px-5">Voltar</a>
+                      <button id="send" class="btn btn-outline-light btn-lg px-5" type="submit" disabled>Send</button>
                       <!-- <a class="btn btn-outline-light btn-lg px-5" href="/">Cancelar</a> -->
                 </form>
   
@@ -57,10 +46,29 @@
               </div>
               
             </div>
-      <p style="color: white; text-align: center;">Copyright © 2022 - All Rights Reserved <br> Author Lucas Félix - Beta Version: 1.0.0</p>
+            <p style="color: white; text-align: center;">Copyright © 2022 - All Rights Reserved <br> Author Lucas Félix - Beta Version: 1.0.0</p>
 
           </div>
         </div>
       </div>
     </div>
   </body>
+
+  <script>
+
+    var senha = document.getElementById('pass')
+    var confirmar = document.getElementById('confirm')
+
+    function validatePass(){
+        if(senha.value != confirmar.value){
+            document.getElementById('warning').innerHTML = 'As senhas devem ser iguais'
+        }else{
+            document.getElementById('warning').innerHTML = ""
+            document.getElementById('send').disabled = false
+        }
+    }
+
+    //senha.onchange = validatePass
+    confirmar.onkeyup = validatePass
+
+  </script>

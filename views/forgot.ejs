@@ -18,30 +18,24 @@
   
               <div class="mb-md-5 mt-md-4 pb-5">
   
-                <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                <p class="text-white-50 mb-5">Please enter your login and password!</p>
+                <h2 class="fw-bold mb-2 text-uppercase">Recover my account</h2>
+                <p class="text-white-50 mb-5">Please enter your email!</p>
   
-                <form action="/login" method="POST">
+                <form action="/forgot" method="POST">
                     <div class="form-outline form-white mb-4">
 
-                      <%if(erro){%>
-                        <div class="alert alert-danger" role="alert">
-                            <%=erro%>
-                        </div>
-                      <%}%>
-                        <input type="text" name="email" class="form-control form-control-lg" required />
-                        <label class="form-label">Username</label>
+                        <%if(success){%>
+                            <div class="alert alert-success" role="alert">
+                                <%= success %>
+                            </div>
+                        <%}%>
+
+                        <input type="email" name="email" class="form-control form-control-lg" required />
+                        <label class="form-label">E-mail Cadastrado</label>
                       </div>
         
-                      <div class="form-outline form-white mb-4">
-                        <input type="password" name="password" class="form-control form-control-lg" required />
-                        <label class="form-label">Password</label>
-                      </div>
-        
-                      <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="/forgot">Forgot password?</a><br>or Contact the Developer</p>
-        
-                      <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-                      <a href="/home" class="btn btn-outline-light btn-lg px-5">Voltar</a>
+                      <button class="btn btn-outline-light btn-lg px-5" type="submit">Send</button>
+                      <a href="/login" class="btn btn-outline-light btn-lg px-5">Cancelar</a>
                       <!-- <a class="btn btn-outline-light btn-lg px-5" href="/">Cancelar</a> -->
                 </form>
   

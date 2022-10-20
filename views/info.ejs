@@ -73,10 +73,37 @@
             </div>
             <div class="row mt-5 mx-auto w-50">
                 <a href="/" class="btn btn-outline-primary mb-3">Voltar</a>
-                <button type="submit" class="btn btn-success">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#finality">
                     Finalizar
-                  </button>
+                </button>
             </div>
+
+            <div class="modal fade" id="finality" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="finalityLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+
+                      <h5 class="modal-title" id="finalityLabel">Informações Do Pagamento</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                    </div>
+
+                    <div class="modal-body row">
+                        
+                        <label class="form-label">Veículo: <%= placa %></label>
+                        <label class="form-label">Estadia: <%= dif %></label>
+                        <label class="form-label">Valor: <%= valor %></label>
+
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Confirmar</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
         </form>
     </div>
 </main>
