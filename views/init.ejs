@@ -10,6 +10,18 @@
   div.dataTables_length, div.dataTables_filter{
     padding: 25px;
   }
+
+  @media print {
+    main *:not(#print):not(#print *) {
+      visibility: hidden;
+    }
+
+    #print{
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  }
 </style>
 
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
@@ -31,12 +43,17 @@
       </div>
     <% } %>
 
+    <div id="print" class="w-75 mx-auto">
+      <p id="print2" class="p-3"></p>
+    </div>
+
     <p class="mt-5">[F2] - Entrada de Veículos / [F8] - Saída de Veículos</p>
     <form action="/register" method="post" class="mt-4 row" id="enter" >
       <h3>Entrada de Veículos</h3>
       <div class="col-3">
         <label class="form-label">Placa</label>
         <input type="text" name="plac" class="form-control col-sm-3" placeholder="Insira a Placa do Veículo" onkeyup="$(this).mask('SSS-0A00')" id="placa" required/>
+        <input type="text" name="clock" class="form-control d-none" id="clock">
       </div>
       <div class="col-4 ms-auto p-2">
         <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="showModal()">Registrar Entrada</button>
@@ -54,7 +71,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Registrar</button>
+              <button type="submit" onclick="window.print()" class="btn btn-primary">Registrar</button>
             </div>
           </div>
         </div>
@@ -195,7 +212,27 @@
           alert('Veículo Inválido')
           return;
         }
+        var date = new Date()
+        console.log(date)
         document.getElementById('info').innerHTML = 'Placa a ser inserida: ' + placaLength + '. <br> Deseja Continuar?'
+        document.getElementById('clock').value = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.000000`
+        //documnet.getElementById('print2').innerHTML = `<%= cnpj %>`
+        document.getElementById('print2').innerHTML = `
+        !--- Estabelecimento: <%= user %><br>
+        !<br>
+        &emsp;&emsp;&emsp;&emsp;CNPJ: <%= cnpj %><br>
+        &emsp;&emsp;&emsp;&emsp;Phone: <%= phone %>
+        <br>--------------------------------------<br>
+        &emsp;&emsp;&emsp;&emsp;ENTRADA AVULSA<br>
+        --------------------------------------<br>
+        Entrada: ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}<br>
+        --------------------------------------<br>
+        <p>NAO PERDER ESTE PAPEL, SERA NECESSARIO APRESNTA-LO NA SAIDA PARA A RETIRADA DO VEICULO<p><br>
+        --------------------------------------<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Placa: ${placaLength}<br>
+        --------------------------------------<br>
+        <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
+        `
         document.getElementById('modal').classList.add('d-block')
       }
 

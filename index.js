@@ -48,6 +48,9 @@ app.get('/home', (req, res) => {
 
 app.get('/', auth, async (req, res) => {
     var db = req.session.user
+    
+    var inf = await knex('users').where({username: db})
+    console.log(inf[0].cnpj)
     /* var error = req.flash("errorRegister")
     error = ( error == undefined || error.length == 0) ? undefined : error */
     var success = req.flash('success')
@@ -58,7 +61,7 @@ app.get('/', auth, async (req, res) => {
     erro = (erro == undefined || erro.length == 0) ? undefined : erro
     await knex(db).select().whereNull("saida").then(select => {
         console.log(req.session)
-        res.render('init', {vec: select, success: success, erro: erro, expire: expire})
+        res.render('init', {vec: select, success: success, erro: erro, expire: expire, cnpj: inf[0].cnpj, user: req.session.user, phone: inf[0].phone})
     })
     .catch(() => {
         var erro = `Algo deu errado, entre em contato com o desenvolvedor! Erro: 1002`

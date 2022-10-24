@@ -50,7 +50,8 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/register', auth, async (req, res) => {
-    var { plac } = req.body
+    var { plac, clock } = req.body
+    //console.log('Time', clock)
     if(plac.length < 8){
         var error = `Os dados que você tentou inserir estão incorretos.`;
         req.flash('erroLogin', error)
@@ -58,13 +59,14 @@ router.post('/register', auth, async (req, res) => {
         return;
     }
     var db = req.session.user
-    var now = moment().format('DD-MM-YYYY HH:mm:ss')
-    console.log(`Placa: ${plac} and Time: ${now}`)
+    var now1 = moment().format('YYYY-MM-DD')
+    console.log('Este é o clock ->>>> ', clock)
+    //console.log(`Placa: ${plac} and Time: ${now}`)
 
     var conferir = await knex.raw(`SELECT * FROM ${db} WHERE placa = '${plac}' AND estadia is null`)
     console.log(conferir.rows)
     if(conferir.rows[0] == undefined){
-        await knex.raw(`INSERT INTO ${db} (placa, entrada, saida, estadia, preco) VALUES ('${plac}', now(), null, null, null) `)
+        await knex.raw(`INSERT INTO ${db} (placa, entrada, saida, estadia, preco) VALUES ('${plac}', '${now1} ${clock}', null, null, null) `)
         .then(() => {
             console.log('Inserido!')
             var success = `Inserido com sucesso`
