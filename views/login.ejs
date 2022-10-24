@@ -29,6 +29,13 @@
                             <%=erro%>
                         </div>
                       <%}%>
+
+                      <% if(success){ %>
+                        <div class="alert alert-success" role="alert">
+                          <%= success %>
+                        </div>
+                      <% } %>
+
                         <input type="text" name="email" class="form-control form-control-lg" required />
                         <label class="form-label">Username</label>
                       </div>

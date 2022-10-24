@@ -36,8 +36,10 @@ app.use('/', master)
 
 app.get('/login', (req, res) => {
     var erro = req.flash("erroLogin")
+    var success = req.flash("success")
+    success = (success == undefined || success.length == 0) ? undefined : success
     erro = (erro == undefined || erro.length == 0) ? undefined : erro
-    res.render('login', {erro: erro})
+    res.render('login', {erro: erro, success: success})
 })
 
 app.get('/home', (req, res) => {

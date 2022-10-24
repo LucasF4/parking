@@ -2,15 +2,36 @@
 <%- include('./partials/nav.ejs') %>
 <body>
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-        <div>
-            <form method="post" action="/uploadInfo">
-                <div class="col-3">
-                    <label class="form-label">Meta</label>
-                    <input name="meta" type="text" class="form-control" onkeypress="$(this).mask('#.##0,00', {reverse: true})" required >
+        <h3 class="mt-3">Configurações</h3>
+        
+            <form method="post" action="/uploadInfo" class="row">
+                <div class="col-12 col-md-6 col-sm-3 col-lg-2 p-5">
+                    <label class="form-label">Meta Diária: </label>
+                    <input name="meta" type="text" class="form-control" onkeypress="$(this).mask('#.##0,00', {reverse: true})" value="<%= meta.replace('.', ',') %>" required >
                 </div>
-                <button type="submit" class="btn btn-success mt-3">Enviar Nova Configuração</button>
+                <!-- <div class="col-12 col-md-6 col-sm-3 col-lg-2 p-5 mt-4">
+                    <button type="button" class="btn btn-primary">Alterar senha</button>
+                </div> -->
+                <hr>
+                <!-- <div class="col-3 col-md-6">
+                    <label class="form-label">Valor da meia hora</label>
+                    <input name="preco" type="text" class="form-control" onkeypress="$(this).mask('#.##0,00', {reverse: true})" value="<%= preco.replace('.', ',') %>" required >
+                </div> -->
+                <div class="d-flex flex-wrap mt-3">
+                    <div class="col-12">
+                        <p>Concordo que o sistema trabalhará com o seguinte formato:</p>
+                    </div>
+                    
+                    <span class="p-2">&ensp; <b>De 0 a 30 minutos</b>, será cobrado um valor fixo de </span>
+                    <input style="width: 100px;" name="preco" type="text" class="form-control" onkeypress="$(this).mask('#.##0,00', {reverse: true})" value="<%= preco.replace('.', ',') %>" required >
+                    <span class="p-2">dessa forma, o valor da <b>hora</b> que será cobrada é de <b style="color: red;"><%= (parseFloat(preco) + parseFloat(preco)).toFixed(2).replace('.', ',') %></b>. Após 1 hora, cada</span>
+                    
+                    <input name="minutes" value="<%= timeacs %>" style="width: 80px;" type="number" min="1" max="60" class="form-control"/><span class="p-2">minutos custará</span>
+                    <input name="acrescimo" value="<%= acrescimo.replace('.', ',') %>" onkeypress="$(this).mask('#.##0,00', {reverse: true})" style="width: 100px;" type="text" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-success mt-3 w-25 mx-auto">Enviar Nova Configuração</button>
             </form>
-        </div>
+        
     </main>
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>

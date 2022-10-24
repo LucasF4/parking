@@ -106,6 +106,7 @@ router.post('/payment', auth, async (req, res) => {
             console.log(tempo)
 
             console.log(`Preço da tabela: ${info[0]['preco'] * 2}`)
+            console.log('Time is: ' + info[0]['timeacs'])
             
             if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
                 preco = info[0]['preco'];
@@ -121,7 +122,7 @@ router.post('/payment', auth, async (req, res) => {
 
                 do{
                     i++
-                    if((i % 15 === 0) && k > 0){
+                    if((i % info[0]['timeacs'] === 0) && k > 0){
                         preco = preco + parseFloat(info[0]['acrescimo'])
                     }
                     if(i == 60){
@@ -142,7 +143,7 @@ router.post('/payment', auth, async (req, res) => {
             }
 
 
-            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replace('.', ',') + '0' : preco.toString() + ',00'})
+            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replace('.', ',') + '' : preco.toString() + ',00'})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)
@@ -248,12 +249,14 @@ router.get('/aboutme', auth, async (req, res) => {
     }
 })
 
-router.get('/editPerson', auth, (req, res) => {
+router.get('/editPerson', auth, async (req, res) => {
     var maintenance = '0';
+    let user = req.session.user
     if(maintenance == '1'){
         res.render('erros/404')
     }else{
-        res.render('editPerson')
+        var result = await knex('users').where({username: user})
+        res.render('editPerson', {meta: result[0].meta, preco: result[0].preco, timeacs: result[0].timeacs, acrescimo: result[0].acrescimo})
     }
 })
 
@@ -262,12 +265,15 @@ router.get('/contact', (req, res) => {
 })
 
 router.post('/uploadInfo', auth, async (req, res) => {
-    var { meta } = req.body
+    var { meta, preco, acrescimo, minutes } = req.body
+    console.log(preco)
     var meta1 = meta.replaceAll('.', '').replace(',', '.')
+    var preco1 = preco.replaceAll('.', '').replace(',', '.')
+    var acrescimo1 = acrescimo.replaceAll('.', '').replace(',', '.')
     var user = req.session.user
     console.log(meta + ' ' + user)
 
-    await knex.raw(`UPDATE users SET meta = '${meta1}' WHERE username = '${user}'`)
+    await knex.raw(`UPDATE users SET meta = '${meta1}', preco = '${preco1}', acrescimo = '${acrescimo1}', timeacs = '${minutes}' WHERE username = '${user}'`)
     .then( () => {
         console.log('Dados atualizados')
         res.redirect('/aboutme')
@@ -320,6 +326,8 @@ router.post('/recover', async (req, res) => {
         await knex('users').where({recover: identificadorUniversal}).update({senha: hash})
         .then( async () => {
             await knex('users').where({recover: identificadorUniversal}).update({recover: null})
+            var success = `Senha alterada com sucesso!`
+            req.flash("success", success)
             res.redirect('/login')
         })
         .catch(err => {
@@ -350,7 +358,8 @@ router.post('/forgot', async (req, res) => {
             auth: {
                 user: process.env.MAIL,
                 pass: process.env.PASSMAIL
-            }
+            },
+            secure: true
         })
     
         var sendEmail = {
@@ -359,9 +368,14 @@ router.post('/forgot', async (req, res) => {
             to: email,
             subject: 'Recuperação de senha - NÃO RESPONDA', 
             html: `
-                <h1>E-mail de redefinição de senha - <span style="color: red;">NÃO COMPARTILHE ESSE LINK PARA NINGUÉM</span></h1>
-                <p>Segue o link de redefinição da senha, por motivos de segurança, não compartilhe com ninguém! Se não foi você que solicitou, ignore esse e-mail, entre em contato com o desenvolvedor e altere sua senha.</p>
-                <br><a href="https://systenparking.herokuapp.com/search?uuid=${uuid}">Clique aqui para redefinir sua senha.</a>
+                <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center;">
+                    <div style="width: 50%;">
+                        <h1>E-mail de redefinição de senha <br> </h1><span style="color: red;">NÃO COMPARTILHE ESSE LINK PARA NINGUÉM</span>
+                        <p>Segue o link de redefinição da senha, por motivos de segurança, não compartilhe com ninguém! Se não foi você que solicitou, ignore esse e-mail, entre em contato com o desenvolvedor e altere sua senha.</p>
+                        <div>
+                        <a style="color:#ffffff; text-decoration:none; background-color:#43A047; border:solid 1px #43A047; border-radius:4px; box-sizing:border-box; display:inline-block; font-size:16px; font-weight:bold; margin:0; padding:10px 20px; border-color:#43A047;" href="https://systenparking.herokuapp.com/search?uuid=${uuid}">Clique aqui para redefinir sua senha.</a>                      
+                    </div>
+                </div>
             `
     
         }
