@@ -125,7 +125,7 @@ router.post('/payment', auth, async (req, res) => {
                 do{
                     i++
                     if((i % info[0]['timeacs'] === 0) && k > 0){
-                        preco = preco + parseFloat(info[0]['acrescimo'])
+                        preco = (preco + parseFloat(info[0]['acrescimo'])).toFixed(2)
                     }
                     if(i == 60){
                         i = 0;
@@ -145,7 +145,7 @@ router.post('/payment', auth, async (req, res) => {
             }
 
 
-            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.toFixed(2).replace('.', ',')})
+            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ',')})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)
