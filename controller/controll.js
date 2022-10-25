@@ -145,7 +145,7 @@ router.post('/payment', auth, async (req, res) => {
             }
 
 
-            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.toString().includes('.') == true ? preco.toString().replace('.', ',') + '' : preco.toString() + ',00'})
+            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.toFixed(2).replace('.', ',')})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)
