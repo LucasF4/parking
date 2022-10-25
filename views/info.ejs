@@ -1,5 +1,18 @@
 <%- include('./partials/head.ejs') %>
 <%- include('./partials/nav.ejs') %>
+<style>
+    @media print {
+    main *:not(#print):not(#print *) {
+      visibility: hidden;
+    }
+
+    #print{
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+}
+</style>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
     <div>
         <form action="/fnsh" method="POST">
@@ -30,7 +43,7 @@
                 </div>
                 <div class="col-2 mt-2">
                     <label class="form-label">Saída</label>
-                    <input name="inputexit" class="form-control" value="<%= info[0].now.substring(0,8) %>" type="text" required readonly/>
+                    <input id="saida" name="inputexit" class="form-control" value="<%= info[0].now.substring(0,8) %>" type="text" required readonly/>
                 </div>
                 <div class="col-2 mt-2">
                     <label class="form-label">Estadia</label>
@@ -97,13 +110,17 @@
 
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">Confirmar</button>
+                      <button type="submit" onclick="window.print()" class="btn btn-primary">Confirmar</button>
                     </div>
 
                   </div>
                 </div>
               </div>
         </form>
+    </div>
+
+    <div id="print">
+
     </div>
 </main>
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -152,9 +169,37 @@
         var teste = parseFloat(document.getElementById('fornecido').value)
         var teste2 = parseFloat(document.getElementById('precoT').value)
         var formpag = document.getElementById('formpag')
+        var saida = document.getElementById('saida')
+
+        document.getElementById('print').innerHTML = `
+        !--- Estabelecimento: <%= user %><br>
+        !<br>
+        &emsp;&emsp;&emsp;&emsp;CNPJ: <br>
+        &emsp;&emsp;&emsp;&emsp;Phone: 
+        <br>--------------------------------------<br>
+        &emsp;&emsp;&emsp;&emsp;RECIBO - RETIRADA DO VEICULO<br>
+        --------------------------------------<br>
+        Placa: <%= placa %><br>
+        Entrada: <%= info[0].entrada.toString().substring(15, 24) %><br>
+        Saida: ${saida.value}<br>
+        Estadia: <%= dif %><br>
+        --------------------------------------<br>
+        <p>Informacoes de pagamento:</p>
+        TOTAL: <%= valor %><br>
+        Forma de Pagamento: ${formpag.value}<br>
+        Valor Pago: ${document.getElementById('fornecido').value}<br>
+        Troco: ${(parseFloat(teste - teste2).toFixed(2) <= 0 || parseFloat(teste - teste2).toFixed(2) == 'NaN') ? '0,00' : parseFloat(teste - teste2).toFixed(2).replace('.', ',')}<br>
+        --------------------------------------<br>
+        >> OBRIGADO PELA PREFERENCIA
+        !
+        <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
+        `;
+
+        
         console.log(teste - teste2)
         resumo.innerHTML = `
                             <label class="form-label col-md-6"><b>Veículo:</b> <%= placa %></label>
+                            <label class="form-label col-md-6"><b>Entrada:</b> <%= info[0].entrada.toString().substring(15, 24) %></label>
                             <label class="form-label col-md-6"><b>Estadia:</b> <%= dif %></label>
                             <label class="form-label col-md-6"><b>Valor:</b> <%= valor %></label>
                             <label class="form-label col-md-6"><b>Desconto:</b> ${document.getElementById('desconto').value}</label>

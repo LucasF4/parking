@@ -107,25 +107,25 @@ router.post('/payment', auth, async (req, res) => {
             var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' +(parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
             console.log(tempo)
 
-            console.log(`Preço da tabela: ${info[0]['preco'] * 2}`)
+            console.log(`Preço da tabela: ${info[0]['preco']}`)
             console.log('Time is: ' + info[0]['timeacs'])
             
             if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
                 preco = info[0]['preco'];
                 console.log('Preço é de ' + preco)
             }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])
+                preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])).toFixed(2)
                 console.log('Preço é de ' + preco)
             }else{
                 var i = 0;
                 var k = 0;
                 var j = 0;
-                preco = parseFloat(info[0]['preco']) + parseFloat(info[0]['preco']);
+                preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])).toFixed(2);
 
                 do{
                     i++
                     if((i % info[0]['timeacs'] === 0) && k > 0){
-                        preco = (preco + parseFloat(info[0]['acrescimo'])).toFixed(2)
+                        preco = (parseFloat(preco) + parseFloat(info[0]['acrescimo'])).toFixed(2);
                     }
                     if(i == 60){
                         i = 0;
@@ -145,7 +145,7 @@ router.post('/payment', auth, async (req, res) => {
             }
 
 
-            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ',')})
+            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ','), user: req.session.user})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)

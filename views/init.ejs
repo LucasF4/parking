@@ -214,6 +214,9 @@
         }
         var date = new Date()
         console.log(date)
+        let hours = date.getHours() < 10 ? '0'+date.getHours() : date.getHours();
+        let minutes = date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes();
+        let seconds = date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds();
         document.getElementById('info').innerHTML = 'Placa a ser inserida: ' + placaLength + '. <br> Deseja Continuar?'
         document.getElementById('clock').value = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.000000`
         //documnet.getElementById('print2').innerHTML = `<%= cnpj %>`
@@ -225,9 +228,9 @@
         <br>--------------------------------------<br>
         &emsp;&emsp;&emsp;&emsp;ENTRADA AVULSA<br>
         --------------------------------------<br>
-        Entrada: ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}<br>
+        Entrada: ${hours}:${minutes}:${seconds}<br>
         --------------------------------------<br>
-        <p>NAO PERDER ESTE PAPEL, SERA NECESSARIO APRESNTA-LO NA SAIDA PARA A RETIRADA DO VEICULO<p><br>
+        <p>NAO PERDER ESTE PAPEL, SERA NECESSARIO APRESENTA-LO NA SAIDA PARA A RETIRADA DO VEICULO<p><br>
         --------------------------------------<br>
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Placa: ${placaLength}<br>
         --------------------------------------<br>
