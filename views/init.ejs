@@ -221,12 +221,13 @@
         document.getElementById('clock').value = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.000000`
         //documnet.getElementById('print2').innerHTML = `<%= cnpj %>`
         document.getElementById('print2').innerHTML = `
-        !--- Estabelecimento: <%= user %><br>
-        !<br>
-        &emsp;&emsp;&emsp;&emsp;CNPJ: <%= cnpj %><br>
-        &emsp;&emsp;&emsp;&emsp;Phone: <%= phone %>
+        !--- Estabelecimento: <%= user.toUpperCase() %><br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <%= endereco %><br>
+        CNPJ: <%= cnpj %><br>
+        Phone: <%= phone %>
         <br>--------------------------------------<br>
-        &emsp;&emsp;&emsp;&emsp;ENTRADA AVULSA<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;ENTRADA AVULSA<br>
         --------------------------------------<br>
         Entrada: ${hours}:${minutes}:${seconds}<br>
         --------------------------------------<br>
@@ -235,6 +236,8 @@
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Placa: ${placaLength}<br>
         --------------------------------------<br>
         <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <small>Sistema: <br>systenparking.herokuapp.com</small><br>
         `
         document.getElementById('modal').classList.add('d-block')
       }

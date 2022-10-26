@@ -75,7 +75,8 @@ router.post('/cad', auth, async (req, res) => {
                                 responsavel: resp['data']['nome'],
                                 preco: '0.00',
                                 acrescimo: '0.00',
-                                timeacs: 0
+                                timeacs: 0,
+                                address: resp['data']['logradouro'] + ' ' + resp['data']['numero']
                             }).then(() => {
                                 knex.raw(`
                                 CREATE TABLE ${user} (

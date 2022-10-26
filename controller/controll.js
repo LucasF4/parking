@@ -144,8 +144,7 @@ router.post('/payment', auth, async (req, res) => {
                 //console.log(parseInt(dias['_data']['days'].toString()))
             }
 
-
-            res.render('info', {day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ','), user: req.session.user})
+            res.render('info', {cnpj: info[0]['cnpj'], phone: info[0]['phone'], address: info[0]['address'], day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ','), user: req.session.user})
         })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)

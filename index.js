@@ -61,7 +61,7 @@ app.get('/', auth, async (req, res) => {
     erro = (erro == undefined || erro.length == 0) ? undefined : erro
     await knex(db).select().whereNull("saida").then(select => {
         console.log(req.session)
-        res.render('init', {vec: select, success: success, erro: erro, expire: expire, cnpj: inf[0].cnpj, user: req.session.user, phone: inf[0].phone})
+        res.render('init', {vec: select, success: success, erro: erro, expire: expire, cnpj: inf[0].cnpj, user: req.session.user, phone: inf[0].phone, endereco: inf[0].address})
     })
     .catch(() => {
         var erro = `Algo deu errado, entre em contato com o desenvolvedor! Erro: 1002`

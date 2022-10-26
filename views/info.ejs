@@ -172,10 +172,11 @@
         var saida = document.getElementById('saida')
 
         document.getElementById('print').innerHTML = `
-        !--- Estabelecimento: <%= user %><br>
-        !<br>
-        &emsp;&emsp;&emsp;&emsp;CNPJ: <br>
-        &emsp;&emsp;&emsp;&emsp;Phone: 
+        !--- Estabelecimento: <%= user.toUpperCase() %><br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <%= address %><br>
+        CNPJ: <%= cnpj %><br>
+        Phone: <%= phone %>
         <br>--------------------------------------<br>
         &emsp;&emsp;&emsp;&emsp;RECIBO - RETIRADA DO VEICULO<br>
         --------------------------------------<br>
@@ -183,16 +184,17 @@
         Entrada: <%= info[0].entrada.toString().substring(15, 24) %><br>
         Saida: ${saida.value}<br>
         Estadia: <%= dif %><br>
-        --------------------------------------<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
         <p>Informacoes de pagamento:</p>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
         TOTAL: <%= valor %><br>
         Forma de Pagamento: ${formpag.value}<br>
         Valor Pago: ${document.getElementById('fornecido').value}<br>
         Troco: ${(parseFloat(teste - teste2).toFixed(2) <= 0 || parseFloat(teste - teste2).toFixed(2) == 'NaN') ? '0,00' : parseFloat(teste - teste2).toFixed(2).replace('.', ',')}<br>
         --------------------------------------<br>
-        >> OBRIGADO PELA PREFERENCIA
-        !
-        <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
+        >> OBRIGADO PELA PREFERENCIA, VOLTE SEMPRE<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <small>Sistema: <br>systenparking.herokuapp.com</small><br>
         `;
 
         
