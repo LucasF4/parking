@@ -44,6 +44,20 @@ router.post('/cad', auth, async (req, res) => {
     var { username, email, senha, phone, pag, cnpj } = req.body
     //console.log(`username: ${username} / email: ${email} / senha: ${senha} / phone: ${phone} / pag: ${pag} / cnpj: ${cnpj}`)
 
+    /*
+    var numeros = /([0-9])/;
+    var alfabeto = /([a-zA-Z])/;
+    var chEspeciais = /([~,!,@,#,$,%,^,&,*,-,_,+,=,?,>,<])/;
+
+    //Bloqueia continuidade do processo se as senhas não tiverem as exigências necessárias
+     if(!senha.match(numeros) || !senha.match(alfabeto) || !senha.match(chEspeciais)){
+        var erro = `Formato de Senha inválida.`
+        req.flash('erroLogin', erro)
+        res.redirect('/adm-master')
+        return
+    }
+    */
+
     var formated = cnpj.replaceAll('.', '').replace('/', '')
     var user = username.replaceAll(' ', '').toLowerCase()
     axios.get(`https://www.receitaws.com.br/v1/cnpj/${formated}`)

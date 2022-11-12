@@ -56,7 +56,7 @@
         <input type="text" name="clock" class="form-control d-none" id="clock">
       </div>
       <div class="col-4 ms-auto p-2">
-        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="showModal()">Registrar Entrada</button>
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="showModal('nshow')">Registrar Entrada</button>
       </div>
 
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -71,7 +71,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" onclick="window.print()" class="btn btn-primary">Registrar</button>
+              <button type="submit" onclick="showModal('show')" class="btn btn-primary">Registrar</button>
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@
           }
       }
 
-      function showModal(){
+      function showModal(enter){
         var placaLength = document.getElementById('placa').value
         if(placaLength.length < 8){
           alert('Veículo Inválido')
@@ -240,6 +240,9 @@
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
         <small>Sistema: <br>systenparking.herokuapp.com</small><br>
         `
+        if(enter == 'show'){
+          window.print()
+        }
         document.getElementById('modal').classList.add('d-block')
       }
 

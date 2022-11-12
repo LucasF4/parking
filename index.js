@@ -59,7 +59,7 @@ app.get('/', auth, async (req, res) => {
     expire = (expire == undefined || expire.length == 0) ? undefined : expire
     success = (success == undefined || success.length == 0) ? undefined : success
     erro = (erro == undefined || erro.length == 0) ? undefined : erro
-    await knex(db).select().whereNull("saida").then(select => {
+    await knex(db).select().whereNull("saida").orderBy('entrada', 'asc').then(select => {
         console.log(req.session)
         res.render('init', {vec: select, success: success, erro: erro, expire: expire, cnpj: inf[0].cnpj, user: req.session.user, phone: inf[0].phone, endereco: inf[0].address})
     })

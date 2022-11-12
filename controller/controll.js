@@ -120,7 +120,7 @@ router.post('/payment', auth, async (req, res) => {
                 var i = 0;
                 var k = 0;
                 var j = 0;
-                preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])).toFixed(2);
+                preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco']) + parseFloat(info[0]['acrescimo']) ).toFixed(2);
 
                 do{
                     i++
@@ -188,7 +188,7 @@ router.get('/relatorio', auth, async (req, res) => {
     var percpag = await knex.raw(`SELECT formpag, COUNT(*) as formpagD FROM ${db} WHERE CAST(entrada as DATE) = '${hoje}' AND formpag is not null GROUP BY formpag`)
     var all = await knex.raw(`SELECT COUNT(*) as all FROM ${db} WHERE formpag is not null AND CAST(entrada as DATE) = '${hoje}'`)
     //var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE entrada > '${today}' AND entrada < '${ends}' AND saida is not null`)
-    var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null ORDER BY id ASC`)
+    var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null ORDER BY entrada ASC`)
     //var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM ${db} WHERE entrada > '${today}' AND entrada < '${ends}') a`)
     var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null) a`)
     //var qnt = await knex.raw(`select count(*) from ${db} WHERE estadia is not null`)
@@ -360,7 +360,7 @@ router.post('/forgot', async (req, res) => {
                 user: process.env.MAIL,
                 pass: process.env.PASSMAIL
             },
-            secure: true
+            //secure: true
         })
     
         var sendEmail = {
@@ -371,7 +371,7 @@ router.post('/forgot', async (req, res) => {
             html: `
                 <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center;">
                     <div style="width: 50%;">
-                        <h1>E-mail de redefinição de senha <br> </h1><span style="color: red;">NÃO COMPARTILHE ESSE LINK PARA NINGUÉM</span>
+                        <h1>E-mail de redefinição de senha <br> </h1><b><span style="color: red;">NÃO COMPARTILHE ESSE LINK PARA NINGUÉM</span></b>
                         <p>Segue o link de redefinição da senha, por motivos de segurança, não compartilhe com ninguém! Se não foi você que solicitou, ignore esse e-mail, entre em contato com o desenvolvedor e altere sua senha.</p>
                         <div>
                         <a style="color:#ffffff; text-decoration:none; background-color:#43A047; border:solid 1px #43A047; border-radius:4px; box-sizing:border-box; display:inline-block; font-size:16px; font-weight:bold; margin:0; padding:10px 20px; border-color:#43A047;" href="https://systenparking.herokuapp.com/search?uuid=${uuid}">Clique aqui para redefinir sua senha.</a>                      
@@ -395,7 +395,7 @@ router.post('/forgot', async (req, res) => {
             }
         })
     }else{
-        var erro = `E-mail não encontrado`
+        var erro = `Cadastro não encontrado`
         req.flash("erroLogin", erro)
         res.redirect('/login')
     }
