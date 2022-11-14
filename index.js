@@ -9,6 +9,7 @@ const register = require('./controller/controll')
 const master = require('./controller/mastercontroll')
 const PORT = process.env.PORT || 7575
 const auth = require('./middleware/auth.js')
+const moment = require('moment')
 
 const session = require('express-session')
 const flash = require("express-flash")
@@ -48,7 +49,7 @@ app.get('/home', (req, res) => {
 
 app.get('/', auth, async (req, res) => {
     var db = req.session.user
-    
+    var today = moment().format('DD/MM/YYYY')
     var inf = await knex('users').where({username: db})
     console.log(inf[0].cnpj)
     /* var error = req.flash("errorRegister")
@@ -61,7 +62,7 @@ app.get('/', auth, async (req, res) => {
     erro = (erro == undefined || erro.length == 0) ? undefined : erro
     await knex(db).select().whereNull("saida").orderBy('entrada', 'asc').then(select => {
         console.log(req.session)
-        res.render('init', {vec: select, success: success, erro: erro, expire: expire, cnpj: inf[0].cnpj, user: req.session.user, phone: inf[0].phone, endereco: inf[0].address})
+        res.render('init', {today: today, vec: select, success: success, erro: erro, expire: expire, cnpj: inf[0].cnpj, user: req.session.user, phone: inf[0].phone, endereco: inf[0].address})
     })
     .catch(() => {
         var erro = `Algo deu errado, entre em contato com o desenvolvedor! Erro: 1002`
