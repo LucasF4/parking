@@ -171,6 +171,8 @@
         var formpag = document.getElementById('formpag')
         var saida = document.getElementById('saida')
 
+        //Troco: ${(parseFloat(teste - teste2).toFixed(2) <= 0 || parseFloat(teste - teste2).toFixed(2) == 'NaN') ? '0,00' : parseFloat(teste - teste2).toFixed(2).replace('.', ',')}<br>
+
         document.getElementById('print').innerHTML = `
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
         !--- Estabelecimento: <%= user.toUpperCase() %><br>
@@ -191,8 +193,7 @@
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
         TOTAL: <%= valor %><br>
         Forma de Pagamento: ${formpag.value}<br>
-        Valor Pago: ${document.getElementById('fornecido').value}<br>
-        Troco: ${(parseFloat(teste - teste2).toFixed(2) <= 0 || parseFloat(teste - teste2).toFixed(2) == 'NaN') ? '0,00' : parseFloat(teste - teste2).toFixed(2).replace('.', ',')}<br>
+        Valor Pago: <%= valor %><br>
         --------------------------------------<br>
         >> OBRIGADO PELA PREFERENCIA, VOLTE SEMPRE<br>
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
