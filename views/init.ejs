@@ -56,7 +56,7 @@
         <input type="text" name="clock" class="form-control d-none" id="clock">
       </div>
       <div class="col-4 ms-auto p-2">
-        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="showModal('nshow')">Registrar Entrada</button>
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="showModal('nshow', 'sim')">Registrar Entrada</button>
       </div>
 
       <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -71,7 +71,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" onclick="showModal('show')" class="btn btn-primary">Registrar</button>
+              <button type="submit" onclick="showModal('show', 'sim')" class="btn btn-primary">Registrar</button>
             </div>
           </div>
         </div>
@@ -140,6 +140,9 @@
             <% }) %>
           </tbody>
         </table>
+        <div class="d-flex align-items-end flex-column mt-3 p-4">
+          <button onclick="showModal('nshow', 'nao')" class="btn btn-success">Conferência de Veículos</button>
+        </div>
       <% } %>
       <!-- <table class="table text-center">
         <thead>
@@ -206,44 +209,58 @@
           }
       }
 
-      function showModal(enter){
-        var placaLength = document.getElementById('placa').value
-        if(placaLength.length < 8){
-          alert('Veículo Inválido')
-          return;
-        }
-        var date = new Date()
-        console.log(date)
-        let hours = date.getHours() < 10 ? '0'+date.getHours() : date.getHours();
-        let minutes = date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes();
-        let seconds = date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds();
-        document.getElementById('info').innerHTML = 'Placa a ser inserida: ' + placaLength + '. <br> Deseja Continuar?'
-        document.getElementById('clock').value = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.000000`
-        //documnet.getElementById('print2').innerHTML = `<%= cnpj %>`
-        document.getElementById('print2').innerHTML = `
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
-        !--- Estabelecimento: <%= user.toUpperCase() %><br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
-        <%= endereco %><br>
-        CNPJ: <%= cnpj %><br>
-        Phone: <%= phone %>
-        <br>--------------------------------------<br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;ENTRADA AVULSA<br>
-        --------------------------------------<br>
-        Entrada: ${hours}:${minutes}:${seconds} <%= today %><br>
-        --------------------------------------<br>
-        <p>NAO PERDER ESTE PAPEL, SERA NECESSARIO APRESENTA-LO NA SAIDA PARA A RETIRADA DO VEICULO<p><br>
-        --------------------------------------<br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Placa: ${placaLength}<br>
-        --------------------------------------<br>
-        <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
-        <small>Sistema: <br>systenparking.herokuapp.com</small><br>
-        `
-        if(enter == 'show'){
+      function showModal(enter, entrada){
+        if(entrada == 'sim'){
+          var placaLength = document.getElementById('placa').value
+          if(placaLength.length < 8){
+            alert('Veículo Inválido')
+            return;
+          }
+          var date = new Date()
+          console.log(date)
+          let hours = date.getHours() < 10 ? '0'+date.getHours() : date.getHours();
+          let minutes = date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes();
+          let seconds = date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds();
+          document.getElementById('info').innerHTML = 'Placa a ser inserida: ' + placaLength + '. <br> Deseja Continuar?'
+          document.getElementById('clock').value = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.000000`
+          //documnet.getElementById('print2').innerHTML = `<%= cnpj %>`
+          document.getElementById('print2').innerHTML = `
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+          !--- Estabelecimento: <%= user.toUpperCase() %><br>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+          <%= endereco %><br>
+          CNPJ: <%= cnpj %><br>
+          Phone: <%= phone %>
+          <br>--------------------------------------<br>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;ENTRADA AVULSA<br>
+          --------------------------------------<br>
+          Entrada: ${hours}:${minutes}:${seconds} <%= today %><br>
+          --------------------------------------<br>
+          <p>NAO PERDER ESTE PAPEL, SERA NECESSARIO APRESENTA-LO NA SAIDA PARA A RETIRADA DO VEICULO<p><br>
+          --------------------------------------<br>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Placa: ${placaLength}<br>
+          --------------------------------------<br>
+          <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+          <small>Sistema: <br>systenparking.herokuapp.com</small><br>
+          `
+          if(enter == 'show'){
+            window.print()
+          }
+          document.getElementById('modal').classList.add('d-block')
+        }else if(entrada == 'nao'){
+          document.getElementById('print2').innerHTML = `
+          Lista de Conferência de Veículos<br>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+          <% vec.forEach(function(vec){ %>
+              <% if(vec.saida == null){ %>
+                  <%= vec.placa %><br>
+              <% } %>
+            <% }) %>
+          `
           window.print()
+          document.getElementById('print2').innerHTML = ``
         }
-        document.getElementById('modal').classList.add('d-block')
       }
 
       function closeModal(){
