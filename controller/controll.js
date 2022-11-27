@@ -188,6 +188,22 @@ router.get('/relatorio', auth, async (req, res) => {
 
     var percpag = await knex.raw(`SELECT formpag, COUNT(*) as formpagD FROM ${db} WHERE CAST(entrada as DATE) = '${hoje}' AND formpag is not null GROUP BY formpag`)
     var all = await knex.raw(`SELECT COUNT(*) as all FROM ${db} WHERE formpag is not null AND CAST(entrada as DATE) = '${hoje}'`)
+    /* var qtd = await knex.raw(`SELECT COUNT(*) FROM ${db}
+    WHERE CAST(entrada as date) = '${hoje}'
+    and saida is not null`) */
+    var cortesia = await knex.raw(`
+        SELECT COUNT(*)
+        FROM ${db}
+        WHERE CAST(entrada as date) = '${hoje}'
+        AND descricao != 'null'
+    `)
+    var qtd = await knex.raw(`SELECT COUNT(*) as carrosTotal,
+    SUM(preco) as total,
+    SUM(preco - desconto) as totalFaturado,
+    SUM(desconto) as desconto
+    FROM ${db}
+    WHERE CAST(entrada as date) = '${hoje}'
+    and saida is not null`)
     //var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE entrada > '${today}' AND entrada < '${ends}' AND saida is not null`)
     var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null ORDER BY entrada ASC`)
     //var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM ${db} WHERE entrada > '${today}' AND entrada < '${ends}') a`)
@@ -195,9 +211,27 @@ router.get('/relatorio', auth, async (req, res) => {
     //var qnt = await knex.raw(`select count(*) from ${db} WHERE estadia is not null`)
     //console.log(preco.rows[0]['sum'])
     //console.log(qnt.rows)
+    var qntVal = await knex.raw(`SELECT COUNT(*), preco FROM ${db}
+        where descricao = 'null'
+        and desconto = 0.00
+        and CAST(entrada as date) = '2022-11-18'
+        group by preco`
+    );
+
     var total = preco.rows[0]['sum']
     total = (total == undefined || total.length == 0 || total == null) ? '0.00' : total
-    res.render('relatorio', {veiculos: veiculos.rows, total: total, hoje: today, fim: ends, today: hoje, percent: percpag.rows, all: all.rows[0]['all']})
+    res.render('relatorio', {
+        veiculos: veiculos.rows, 
+        total: total, 
+        hoje: today, 
+        fim: ends,
+        relatorio: qtd.rows[0], 
+        today: hoje, 
+        percent: percpag.rows, 
+        all: all.rows[0]['all'],
+        cortesia: cortesia.rows[0],
+        qtdv: qntVal.rows
+    })
 })
 
 router.get('/relat', auth, async (req, res) => {

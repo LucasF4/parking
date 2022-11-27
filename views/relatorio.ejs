@@ -225,18 +225,22 @@
         document.getElementById('print').innerHTML = `
 
                 Relatório de Veículos do dia <%= today %><br><br>
-                <% veiculos.forEach(function(veiculos){ %>
-                      
-                    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<%= veiculos.placa %><br>
-                    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Entrada: <%= veiculos.entrada.toString().substring(15, 24) %><br>
-                    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Saída: <%= veiculos.saida %><br>
-                    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Preço: <%= veiculos.preco.replace('.', ',') %><br>
-                    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Desconto: <%= veiculos.desconto.replace('.', ',') %><br>
-                    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Cortesia: <%= veiculos.descricao == null ? 'Não' : veiculos.descricao == 'null' ? 'Não' : 'Sim' %><br><br>
-                    
-                <% }) %>
+                --------------------------------------<br>
+                &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Movimento do Dia<br>
+                --------------------------------------<br>
+                Veículos Rotativos: <%= relatorio['carrostotal'] %><br>
+                Veículos com Cortesias: <%= cortesia['count'] %><br>
+                --------------------------------------<br>
+                &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<n>FATURAMENTO</n><br>
+                --------------------------------------<br>
+                Valor sem Descontos: <%= relatorio['total'] %><br>
+                Total de Descontos: <%= relatorio['desconto'] %> <br>
+                Total Faturado: <%= relatorio['totalfaturado'] %> <br>
+                --------------------------------------<br>
                 <br>
-                Total Faturado: <%= total.replace('.', ',') %>
+                <% qtdv.forEach(function(element){ %>
+                    Quantidade: <%= element['count'] < 10 ? '0'+element['count'] : element['count'] %> ...... Valor: <%= element['preco'].replaceAll('.', ',') %> <br>
+                <% }) %>
     `
     window.print()
     document.getElementById('print').innerHTML = ``
