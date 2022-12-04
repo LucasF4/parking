@@ -239,7 +239,7 @@
                 --------------------------------------<br>
                 <br>
                 <% qtdv.forEach(function(element){ %>
-                    Quantidade: <%= element['count'] < 10 ? '0'+element['count'] : element['count'] %> ...... Valor: <%= element['preco'].replaceAll('.', ',') %> <br>
+                    Quantidade: <%= element['count'] < 10 ? '0'+ element['count'] : element['count'] %> ...... Valor: <%= element['preco'].replace('.', ',') %> <br>
                 <% }) %>
     `
     window.print()
