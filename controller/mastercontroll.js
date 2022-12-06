@@ -58,8 +58,8 @@ router.post('/cad', auth, async (req, res) => {
     }
     */
 
-    var formated = cnpj.replace('.', '').replace('/', '')
-    var user = username.replace(' ', '').toLowerCase()
+    var formated = cnpj.replaceAll('.', '').replace('/', '')
+    var user = username.replaceAll(' ', '').toLowerCase()
     axios.get(`https://www.receitaws.com.br/v1/cnpj/${formated}`)
     .then(async resp => {
         if(resp['data']['situacao'] == 'ATIVA'){
