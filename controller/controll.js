@@ -23,10 +23,12 @@ router.post('/login', async (req, res) => {
             }else{
                 if(conf[0]['license'] == 'ilimitado' || conf[0]['license'] >= today){
                     console.log(conf[0]['license'] + ' -> ' + today + '->' + fivedays)
+                    var licenseDay = moment(conf[0].license).subtract(5, "days").format("YYYY-MM-DD")
+                    console.log(licenseDay)
                     req.session.user = conf[0].username
                     req.session.expire = conf[0].license
-                    expire = (conf[0].license == today) ? 'Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
-                    
+                    //expire = (conf[0].license == today) ? 'Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
+                    expire = (licenseDay <= today && conf[0].license > today) ? `Sua licença encerra ${req.session.expire}. Realize o Pagamento e entre em contato com o Desenvolvedor!` : conf[0].license == today ? `Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!` : undefined
                     req.flash('expire', expire)
                     res.redirect('/')
                 }else{
@@ -214,7 +216,7 @@ router.get('/relatorio', auth, async (req, res) => {
     var qntVal = await knex.raw(`SELECT COUNT(*), preco FROM ${db}
         where descricao = 'null'
         and desconto = 0.00
-        and CAST(entrada as date) = '2022-11-18'
+        and CAST(entrada as date) = '${hoje}'
         group by preco`
     );
 
