@@ -201,7 +201,7 @@
                 responsitve: true
             },
             data: {
-                labels: ['Gráfico do dia <%= today %>'],
+                labels: ['Gráfico do dia <%= hoje %>'],
                 datasets: [
                     {
                         label: 'Meta',
@@ -224,7 +224,7 @@
     function printRealtorio(){
         document.getElementById('print').innerHTML = `
 
-                Relatório de Veículos do dia <%= today %><br><br>
+                Relatório de Veículos do dia <%= hoje %><br><br>
                 --------------------------------------<br>
                 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Movimento do Dia<br>
                 --------------------------------------<br>
@@ -233,11 +233,11 @@
                 --------------------------------------<br>
                 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<n>FATURAMENTO</n><br>
                 --------------------------------------<br>
-                Valor sem Descontos: <%= relatorio['total'] %><br>
-                Total de Descontos: <%= relatorio['desconto'] %> <br>
-                Total Faturado: <%= relatorio['totalfaturado'] %> <br>
+                Total Sem Desconto: <%= relatorio['totalfaturado'] %> <br>
+                Total de Descontos: <%= relatorio['desconto'].replace('.', ',') %> <br>
+                Faturamento: <%= relatorio['total'].replace('.', ',') %><br>
                 --------------------------------------<br>
-                <br>
+                Relatório Individual <br>
                 <% qtdv.forEach(function(element){ %>
                     Quantidade: <%= element['count'] < 10 ? '0'+ element['count'] : element['count'] %> ...... Valor: <%= element['preco'].replace('.', ',') %> <br>
                 <% }) %>
