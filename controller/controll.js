@@ -26,9 +26,9 @@ router.post('/login', async (req, res) => {
                     var licenseDay = moment(conf[0].license).subtract(5, "days").format("YYYY-MM-DD")
                     console.log(licenseDay)
                     req.session.user = conf[0].username
-                    req.session.expire = conf[0].license
+                    req.session.expire = moment(conf[0].license).format('DD/MM/YYYY')
                     //expire = (conf[0].license == today) ? 'Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
-                    expire = (licenseDay <= today && conf[0].license > today) ? `Sua licença encerra ${req.session.expire}. Realize o Pagamento e entre em contato com o Desenvolvedor!` : conf[0].license == today ? `Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!` : undefined
+                    expire = (licenseDay <= today && moment(conf[0].license).subtract(1,'days').format('YYYY-MM-DD') > today) ? `Sua licença encerra ${req.session.expire}. Realize o Pagamento e entre em contato com o Desenvolvedor!` : conf[0].license == today ? `Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!` : moment(conf[0].license).subtract(1, 'days').format('YYYY-MM-DD') == today ? 'Sua licença encerra AMANHÃ. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
                     req.flash('expire', expire)
                     res.redirect('/')
                 }else{

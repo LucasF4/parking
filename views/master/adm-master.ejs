@@ -50,18 +50,18 @@
                 <p class="card-text">Contato: <%= result.phone %></p>
                 <p class="card-text">CNPJ: <%= result.cnpj %></p>
               </div>
-              <% if(today >= result.license){ %>
-                <button data-bs-toggle="modal" href="#modalEdit" class="btn btn-warning w-50 mx-auto mb-3">Renovar</button>
+              <% if(result.license){ %>
+                <button data-bs-toggle="modal" href="#modalEdit" class="btn btn-warning w-50 mx-auto mb-3" onclick="ren('<%= result.username %>')">Renovar</button>
                 <form action="/renov" method="POST">
                   <div class="modal fade" id="modalEdit" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalToggleLabel">Renovação de Usuário <%= result.username %></h5>
+                          <h5 class="modal-title" id="exampleModalToggleLabel">Renovação de Usuário - </h5>
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body d-flex justify-content-around">
-                          <input type="text" name="username" value="<%= result.username %>" hidden readonly>
+                          <input id="usernameInput" type="text" name="username" value="" hidden readonly>
                           <div class="form-check">
                             <input type="radio" class="form-check-input" name="pag" value="1" id="1mescheck" checked>
                             <label class="form-check-label" for="1mescheck">1 Mês</label>
@@ -185,6 +185,11 @@
         $('#cnpj').mask('00.000.000/0000.00')
         $('#phone').mask('(99) 99999-9999')
       })
+
+      function ren(username){
+        document.getElementById('usernameInput').value = username
+        document.getElementById('exampleModalToggleLabel').innerHTML = 'Renovação de Usuário - ' + username
+      }
 
       var password = document.getElementById('password')
       
