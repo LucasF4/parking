@@ -233,9 +233,9 @@
                 --------------------------------------<br>
                 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<n>FATURAMENTO</n><br>
                 --------------------------------------<br>
-                Total Sem Desconto: <%= relatorio['totalfaturado'] %> <br>
-                Total de Descontos: <%= relatorio['desconto'].replace('.', ',') %> <br>
-                Faturamento: <%= relatorio['total'].replace('.', ',') %><br>
+                Total Sem Desconto: <%= relatorio['totalfaturado'] ? relatorio['totalfaturado'].replace('.', ',') : 0,00 %> <br>
+                Total de Descontos: <%= relatorio['desconto'] ? relatorio['desconto'].replace('.', ',') : 0,00 %> <br>
+                Faturamento: <%= relatorio['total'] ? relatorio['total'].replace('.', ',') : 0,00 %><br>
                 --------------------------------------<br>
                 Relatório Individual <br>
                 <% qtdv.forEach(function(element){ %>
