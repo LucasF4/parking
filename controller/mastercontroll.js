@@ -9,7 +9,7 @@ const axios = require('axios')
 
 router.get('/adm-master', auth, async (req, res) => {
     const today = moment().format('YYYY-MM-DD')
-    await knex.raw(`SELECT username, email, phone, pag, license, cnpj FROM users WHERE username != '${process.env.MM}'`)
+    await knex.raw(`SELECT username, email, phone, pag, TO_CHAR(CAST(license as date), 'DD/MM/YYYY') license, cnpj FROM users WHERE username != '${process.env.MM}'`)
     .then(result => {
         //console.log(result.rows)
         var erro = req.flash("erroLogin")
