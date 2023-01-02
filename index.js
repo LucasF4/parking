@@ -44,7 +44,8 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/home', (req, res) => {
-    res.render('home')
+    console.log(req.session.user)
+    res.render('home', {user: req.session.user})
 })
 
 app.get('/', auth, async (req, res) => {

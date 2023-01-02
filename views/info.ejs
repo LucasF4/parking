@@ -156,13 +156,13 @@
     preco.addEventListener('keyup', () =>{
         var total = parseFloat(preco.value.replace(',', '.')) - parseFloat(desconto.value.replace(',', '.'))
         document.getElementById('total').innerText = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00'
-        precoT.value = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00'
+        /* precoT.value = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00' */
     })
 
     desconto.addEventListener('keyup', () => {
         var total = parseFloat(preco.value.replace(',', '.')) - parseFloat(desconto.value.replace(',', '.'))
         document.getElementById('total').innerText = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00'
-        precoT.value = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00'
+        /* precoT.value = total.toString().includes('.') == true ? total.toFixed(2).toString().replace('.', ',') : total + ',00' */
     })
 
     function resumoInsert(){
@@ -170,6 +170,7 @@
         var teste2 = parseFloat(document.getElementById('precoT').value)
         var formpag = document.getElementById('formpag')
         var saida = document.getElementById('saida')
+        var total2 = parseFloat(preco.value.replace(',', '.')) - parseFloat(desconto.value.replace(',', '.'))
 
         //Troco: ${(parseFloat(teste - teste2).toFixed(2) <= 0 || parseFloat(teste - teste2).toFixed(2) == 'NaN') ? '0,00' : parseFloat(teste - teste2).toFixed(2).replace('.', ',')}<br>
 
@@ -193,7 +194,7 @@
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
         TOTAL: <%= valor %><br>
         Forma de Pagamento: ${formpag.value}<br>
-        Valor Pago: <%= valor %><br>
+        Valor Pago: ${total2.toString().includes('.') == true ? total2.toFixed(2).toString().replace('.', ',') : total2 + ',00'}<br>
         --------------------------------------<br>
         >> OBRIGADO PELA PREFERENCIA, VOLTE SEMPRE<br>
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>

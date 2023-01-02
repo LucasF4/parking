@@ -25,6 +25,18 @@
     .card{
         height: 80%;
     }
+
+    .controllerDash{
+      opacity: 0.4;
+      animation: anima 1s ease infinite;
+    }
+
+    @keyframes anima{
+      to{
+        opacity: 1;
+      }
+    }
+
 </style>
 <body class="first-screen">
   <script>
@@ -50,9 +62,15 @@
                           <li class="nav-item">
                             <a class="nav-link lead" href="#ofertas">Ofertas</a>
                           </li>
+                          <% if(user == undefined){ %>
                           <li class="nav-item">
                             <a class="nav-link lead" href="/login">login</a>
                           </li>
+                          <% } else { %>
+                            <li class="nav-item">
+                              <a class="nav-link lead controllerDash" href="/">Painel de Controle (<%= user %>)</a>
+                            </li>
+                          <% } %>
                         </ul>
                       </div>
                     </div>

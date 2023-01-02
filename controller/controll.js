@@ -200,8 +200,8 @@ router.get('/relatorio', auth, async (req, res) => {
         AND descricao != 'null'
     `)
     var qtd = await knex.raw(`SELECT COUNT(*) as carrosTotal,
-    SUM(preco) as total,
-    SUM(preco + desconto) as totalFaturado,
+    SUM(preco - desconto) as total,
+    SUM(preco) as totalFaturado,
     SUM(desconto) as desconto
     FROM ${db}
     WHERE CAST(entrada as date) = '${hoje}'
@@ -209,7 +209,7 @@ router.get('/relatorio', auth, async (req, res) => {
     //var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE entrada > '${today}' AND entrada < '${ends}' AND saida is not null`)
     var veiculos = await knex.raw(`SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null ORDER BY entrada ASC`)
     //var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM ${db} WHERE entrada > '${today}' AND entrada < '${ends}') a`)
-    var preco = await knex.raw(`SELECT sum(preco) FROM (SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null) a`)
+    var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null) a`)
     //var preco = await knex.raw(`SELECT sum(preco - desconto) FROM (SELECT * FROM ${db} WHERE CAST(entrada as date) = '${hoje}' and saida is not null) a`)
     //var qnt = await knex.raw(`select count(*) from ${db} WHERE estadia is not null`)
     //console.log(preco.rows[0]['sum'])
@@ -219,6 +219,9 @@ router.get('/relatorio', auth, async (req, res) => {
         and CAST(entrada as date) = '${hoje}'
         group by preco`
     );
+
+    console.log(preco.rows[0])
+    console.log(qtd.rows[0])
 
     var total = preco.rows[0]['sum']
     total = (total == undefined || total.length == 0 || total == null) ? '0.00' : total
