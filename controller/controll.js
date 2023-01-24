@@ -112,7 +112,10 @@ router.post('/payment', auth, async (req, res) => {
 
             console.log(`Preço da tabela: ${info[0]['preco']}`)
             console.log('Time is: ' + info[0]['timeacs'])
-            
+            if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 3 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
+                preco = 0.00.toFixed(2)
+                console.log('------------ esta')
+            }else
             if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
                 preco = info[0]['preco'];
                 console.log('Preço é de ' + preco)

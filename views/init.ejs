@@ -44,7 +44,9 @@
     <% } %>
 
     <div id="print" class="w-75 mx-auto">
-      <p id="print2" class="p-3"></p>
+      <p id="print2" class="p-3">
+        <img id="imageQRCode" style="display: none;" src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=http://192.168.0.19:7575/cliente/?parking=<%= user %>">
+      </p>
     </div>
 
     <p class="mt-5">[F2] - Entrada de Veículos / [F8] - Saída de Veículos</p>
@@ -112,8 +114,9 @@
 
     <div class="mt-4">
       <% if(vec[0] == null || vec[0] == undefined){ %>
-        <div class="row mx-auto w-50 my-auto">
-          <h4>Não há veículos no pátio.</h4>
+        <div class="row mx-auto w-50 mt-5">
+          <img src="src/images/produtoempty.jpg" />
+          <p style="font-weight: bold; text-align: center;">Lista de Veículos Vazia</p>
         </div>
       <% } else { %>
         <table id="table" class="table text-center">
@@ -243,7 +246,10 @@
           <small>Tipo: Rotativo</small>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<small>Vers.: Beta</small><br>
           &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
           <small>Sistema: <br>systenparking.onrender.com</small><br>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Acompanhe seu preço nesse QRCode<br>
+          <img id="imageQRCode" src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=http://192.168.0.19:7575/cliente/?parking=<%= user %>">
           `
+          //https://www.blogson.com.br/como-criar-um-gerador-de-qr-code-com-jquery-js-facil/
           if(enter == 'show'){
             window.print()
           }
