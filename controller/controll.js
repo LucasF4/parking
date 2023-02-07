@@ -417,7 +417,7 @@ router.post('/forgot', async (req, res) => {
                         <h1>E-mail de redefinição de senha <br> </h1><b><span style="color: red;">NÃO COMPARTILHE ESSE LINK PARA NINGUÉM</span></b>
                         <p>Segue o link de redefinição da senha, por motivos de segurança, não compartilhe com ninguém! Se não foi você que solicitou, ignore esse e-mail, entre em contato com o desenvolvedor e altere sua senha.</p>
                         <div>
-                        <a style="color:#ffffff; text-decoration:none; background-color:#43A047; border:solid 1px #43A047; border-radius:4px; box-sizing:border-box; display:inline-block; font-size:16px; font-weight:bold; margin:0; padding:10px 20px; border-color:#43A047;" href="https://systenparking.herokuapp.com/search?uuid=${uuid}">Clique aqui para redefinir sua senha.</a>                      
+                        <a style="color:#ffffff; text-decoration:none; background-color:#43A047; border:solid 1px #43A047; border-radius:4px; box-sizing:border-box; display:inline-block; font-size:16px; font-weight:bold; margin:0; padding:10px 20px; border-color:#43A047;" href="https://systenparking.onrender.com/search?uuid=${uuid}">Clique aqui para redefinir sua senha.</a>                      
                     </div>
                 </div>
             `
