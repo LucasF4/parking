@@ -6,45 +6,45 @@ const knex = require('../Database/connection.js')
 const auth = require('../middleware/auth.js')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
-const {v4: uuidv4} = require('uuid')
+const { v4: uuidv4 } = require('uuid')
 
 router.post('/login', async (req, res) => {
     var { email, password } = req.body
-    var conf = await knex('users').select().where({username: email})
+    var conf = await knex('users').select().where({ username: email })
     var today = moment().format('YYYY-MM-DD')
-    var fivedays = moment().subtract(5,'days').format('YYYY-MM-DD')
+    var fivedays = moment().subtract(5, 'days').format('YYYY-MM-DD')
 
-    if(conf[0] != undefined){
+    if (conf[0] != undefined) {
         var corret = bcrypt.compareSync(password, conf[0].senha)
-        if(corret){
-            if(conf[0].username == process.env.MM){
+        if (corret) {
+            if (conf[0].username == process.env.MM) {
                 req.session.user = conf[0].username
                 res.redirect('/adm-master')
-            }else{
-                if(conf[0]['license'] == 'ilimitado' || conf[0]['license'] >= today){
+            } else {
+                if (conf[0]['license'] == 'ilimitado' || conf[0]['license'] >= today) {
                     console.log(conf[0]['license'] + ' -> ' + today + '->' + fivedays)
                     var licenseDay = moment(conf[0].license).subtract(5, "days").format("YYYY-MM-DD")
                     console.log(licenseDay)
                     req.session.user = conf[0].username
                     req.session.expire = moment(conf[0].license).format('DD/MM/YYYY')
                     //expire = (conf[0].license == today) ? 'Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
-                    expire = (licenseDay <= today && moment(conf[0].license).subtract(1,'days').format('YYYY-MM-DD') > today) ? `Sua licença encerra ${req.session.expire}. Realize o Pagamento e entre em contato com o Desenvolvedor!` : conf[0].license == today ? `Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!` : moment(conf[0].license).subtract(1, 'days').format('YYYY-MM-DD') == today ? 'Sua licença encerra AMANHÃ. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
+                    expire = (licenseDay <= today && moment(conf[0].license).subtract(1, 'days').format('YYYY-MM-DD') > today) ? `Sua licença encerra ${req.session.expire}. Realize o Pagamento e entre em contato com o Desenvolvedor!` : conf[0].license == today ? `Sua licença encerra HOJE. Realize o Pagamento e entre em contato com o Desenvolvedor!` : moment(conf[0].license).subtract(1, 'days').format('YYYY-MM-DD') == today ? 'Sua licença encerra AMANHÃ. Realize o Pagamento e entre em contato com o Desenvolvedor!' : undefined
                     req.flash('expire', expire)
                     res.redirect('/')
-                }else{
+                } else {
                     console.log(conf[0]['license'] + ' -> ' + today)
                     var erro = `Sua Licença Expirou.\nVeja nossas ofertas  e entre em contato com o Desenvolvedor.`
                     req.flash('erroLogin', erro)
                     res.redirect('/login')
                 }
             }
-        }else{
+        } else {
             var erro = `Credenciais Incorretas`
             req.flash('erroLogin', erro)
             res.redirect('/login')
         }
-        
-    }else{
+
+    } else {
         var erro = `Credenciais Incorretas`
         req.flash('erroLogin', erro)
         res.redirect('/login')
@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
 router.post('/register', auth, async (req, res) => {
     var { plac, clock } = req.body
     //console.log('Time', clock)
-    if(plac.length < 8){
+    if (plac.length < 8) {
         var error = `Os dados que você tentou inserir estão incorretos.`;
         req.flash('erroLogin', error)
         res.redirect('/')
@@ -67,16 +67,16 @@ router.post('/register', auth, async (req, res) => {
 
     var conferir = await knex.raw(`SELECT * FROM ${db} WHERE placa = '${plac}' AND estadia is null`)
     console.log(conferir.rows)
-    if(conferir.rows[0] == undefined){
+    if (conferir.rows[0] == undefined) {
         await knex.raw(`INSERT INTO ${db} (placa, entrada, saida, estadia, preco) VALUES ('${plac}', '${now1} ${clock}', null, null, null) `)
-        .then(() => {
-            console.log('Inserido!')
-            var success = `Inserido com sucesso`
-            req.flash('success', success)
-            res.redirect('/')
-        })
-        .catch( err => console.log(err) )
-    }else{
+            .then(() => {
+                console.log('Inserido!')
+                var success = `Inserido com sucesso`
+                req.flash('success', success)
+                res.redirect('/')
+            })
+            .catch(err => console.log(err))
+    } else {
         var erro = `Veículo já registrado`
         req.flash('erroLogin', erro)
         res.redirect('/')
@@ -90,73 +90,73 @@ router.post('/payment', auth, async (req, res) => {
     var preco = 0;
 
     console.log(`Placa: ${plac}`)
-    var conferir = await knex(db).select().where({placa: plac}).andWhere({estadia: null})
-    var info = await knex('users').where({username: db})
+    var conferir = await knex(db).select().where({ placa: plac }).andWhere({ estadia: null })
+    var info = await knex('users').where({ username: db })
 
-    if(conferir[0] != undefined){
+    if (conferir[0] != undefined) {
 
         await knex.raw(`SELECT *, now()::time, AGE(a.entrada, now()) FROM ${db} a WHERE placa = '${plac}' AND  estadia is null`)
-        .then( resp => {
+            .then(resp => {
 
-            if(resp.rows[0]['estadia'] != null){
-                res.send('Veículo informado já saiu, faça um novo registro')
-                return;
-            }
+                if (resp.rows[0]['estadia'] != null) {
+                    res.send('Veículo informado já saiu, faça um novo registro')
+                    return;
+                }
 
-            console.log( resp.rows )
-            var diff = moment(resp.rows[0]['entrada'], 'HH:mm:ss').diff(moment(resp.rows[0]['now'], 'HH:mm:ss'))
-            var dias = moment.duration(diff)
-            
-            var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' +(parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
-            console.log(tempo)
+                console.log(resp.rows)
+                var diff = moment(resp.rows[0]['entrada'], 'HH:mm:ss').diff(moment(resp.rows[0]['now'], 'HH:mm:ss'))
+                var dias = moment.duration(diff)
 
-            console.log(`Preço da tabela: ${info[0]['preco']}`)
-            console.log('Time is: ' + info[0]['timeacs'])
-            if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 3 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = 0.00.toFixed(2)
-                console.log('------------ esta')
-            }else
-            if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = info[0]['preco'];
-                console.log('Preço é de ' + preco)
-            }else if(parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0){
-                preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])).toFixed(2)
-                console.log('Preço é de ' + preco)
-            }else{
-                var i = 0;
-                var k = 0;
-                var j = 0;
-                preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco']) + parseFloat(info[0]['acrescimo']) ).toFixed(2);
+                var tempo = (parseInt(dias['_data']['hours'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['hours'].toString().replace('-', '')) : parseInt(dias['_data']['hours'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['minutes'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['minutes'].toString().replace('-', '')) : parseInt(dias['_data']['minutes'].toString().replace('-', ''))) + ':' + (parseInt(dias['_data']['seconds'].toString().replace('-', '')) <= 9 ? '0' + parseInt(dias['_data']['seconds'].toString().replace('-', '')) : parseInt(dias['_data']['seconds'].toString().replace('-', '')))
+                console.log(tempo)
 
-                do{
-                    i++
-                    if((i % info[0]['timeacs'] === 0) && k > 0){
-                        preco = (parseFloat(preco) + parseFloat(info[0]['acrescimo'])).toFixed(2);
+                console.log(`Preço da tabela: ${info[0]['preco']}`)
+                console.log('Time is: ' + info[0]['timeacs'])
+                if (parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 3 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0) {
+                    preco = 0.00.toFixed(2)
+                    console.log('------------ esta')
+                } else
+                    if (parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) < 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0) {
+                        preco = info[0]['preco'];
+                        console.log('Preço é de ' + preco)
+                    } else if (parseInt(dias['_data']['hours'].toString().replace('-', '')) == 0 && parseInt(dias['_data']['minutes'].toString().replace('-', '')) >= 30 && parseInt(dias['_data']['days'].toString().replace('-', '')) == 0) {
+                        preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco'])).toFixed(2)
+                        console.log('Preço é de ' + preco)
+                    } else {
+                        var i = 0;
+                        var k = 0;
+                        var j = 0;
+                        preco = (parseFloat(info[0]['preco']) + parseFloat(info[0]['preco']) + parseFloat(info[0]['acrescimo'])).toFixed(2);
+
+                        do {
+                            i++
+                            if ((i % info[0]['timeacs'] === 0) && k > 0) {
+                                preco = (parseFloat(preco) + parseFloat(info[0]['acrescimo'])).toFixed(2);
+                            }
+                            if (i == 60) {
+                                i = 0;
+                                k++
+                            }
+                            if (k == 24) {
+                                k = 0;
+                                j++
+                            }
+
+                        } while (i < parseInt(dias['_data']['minutes'].toString().replace('-', '')) || k < parseInt(dias['_data']['hours'].toString().replace('-', '')) || j < parseInt(dias['_data']['days'].toString().replace('-', '')))
+                        //|| j < parseInt(dias['_data']['days'].toString().replace('-', ''))
+                        console.log(j + ':' + k + ':' + i)
+                        //console.log('-----------> ' + j)
+                        console.log('Preço total: ' + preco)
+                        //console.log(parseInt(dias['_data']['days'].toString()))
                     }
-                    if(i == 60){
-                        i = 0;
-                        k++
-                    }
-                    if(k == 24){
-                        k = 0;
-                        j++
-                    }
 
-                }while(i < parseInt(dias['_data']['minutes'].toString().replace('-', '')) || k < parseInt(dias['_data']['hours'].toString().replace('-', '')) || j < parseInt(dias['_data']['days'].toString().replace('-', '')))
-                //|| j < parseInt(dias['_data']['days'].toString().replace('-', ''))
-                console.log(j + ':' + k + ':' + i)
-                //console.log('-----------> ' + j)
-                console.log('Preço total: ' + preco)
-                //console.log(parseInt(dias['_data']['days'].toString()))
-            }
-
-            res.render('info', {today: today, cnpj: info[0]['cnpj'], phone: info[0]['phone'], address: info[0]['address'], day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ','), user: req.session.user})
-        })
+                res.render('info', { today: today, cnpj: info[0]['cnpj'], phone: info[0]['phone'], address: info[0]['address'], day: j, placa: plac, info: resp.rows, dif: tempo, valor: preco.replace('.', ','), user: req.session.user })
+            })
 
         /* knex.raw(`UPDATE veicles SET saida = now() WHERE placa = '${plac}'`)
         .then(() => res.redirect('/'))
         .catch( err => console.log(err)) */
-    }else{
+    } else {
         var erro = `Veículo não registrado!`
         req.flash('erroLogin', erro)
         res.redirect('/')
@@ -174,15 +174,15 @@ router.post('/fnsh', auth, async (req, res) => {
     /* if(cortesia != null){
         inputpayT = '0,00'
     } */
-    
+
     await knex.raw(`UPDATE ${db} SET saida = '${inputexit}', estadia = '${inputestadia}', preco = ${inputpayT.replace(',', '.')}, desconto = ${inputdesc.replace(',', '.')}, descricao = '${inputCortesia}', formpag = '${formpag}' WHERE placa = '${inputplaca}' AND estadia is null`)
-    .then(() => {
-        console.log('Pagamento realizado!')
-        var success = `Registro Finalizado e Pagamento Efetuado!`
-        req.flash('success', success)
-        res.redirect('/')
-    })
-    .catch( err => console.log(err) )
+        .then(() => {
+            console.log('Pagamento realizado!')
+            var success = `Registro Finalizado e Pagamento Efetuado!`
+            req.flash('success', success)
+            res.redirect('/')
+        })
+        .catch(err => console.log(err))
 })
 
 router.get('/relatorio', auth, async (req, res) => {
@@ -229,13 +229,13 @@ router.get('/relatorio', auth, async (req, res) => {
     var total = preco.rows[0]['sum']
     total = (total == undefined || total.length == 0 || total == null) ? '0.00' : total
     res.render('relatorio', {
-        veiculos: veiculos.rows, 
-        total: total, 
-        hoje: today, 
+        veiculos: veiculos.rows,
+        total: total,
+        hoje: today,
         fim: ends,
-        relatorio: qtd.rows[0], 
-        today: hoje, 
-        percent: percpag.rows, 
+        relatorio: qtd.rows[0],
+        today: hoje,
+        percent: percpag.rows,
         all: all.rows[0]['all'],
         cortesia: cortesia.rows[0],
         qtdv: qntVal.rows
@@ -264,31 +264,31 @@ router.get('/relat', auth, async (req, res) => {
         'Dez'
     ])[EXTRACT(MONTH FROM entrada)] as mes, extract(month from entrada) as data from ${db}
     group by mes, data order by data asc`)
-    .then(async relat => {
-        var dif = await knex.raw(`SELECT extract(dow from entrada) as test, SUM(preco - desconto)
+        .then(async relat => {
+            var dif = await knex.raw(`SELECT extract(dow from entrada) as test, SUM(preco - desconto)
         FROM ${db} WHERE CAST(entrada as date) >= '${initweek}' and CAST(entrada as date) <= '${today}' GROUP BY test`)
 
-        var day = await knex.raw(`SELECT SUM(${db}.preco - ${db}.desconto)
+            var day = await knex.raw(`SELECT SUM(${db}.preco - ${db}.desconto)
             FROM ${db} WHERE CAST(${db}.entrada as date) = '${today}'`)
 
-        var meta = await knex('users').select().where({username: user})
+            var meta = await knex('users').select().where({ username: user })
 
-        res.json({relat: relat.rows, dif: dif.rows, today: day.rows, meta: meta[0]['meta']})
-    })
-    .catch(err => {
-        console.log(err)
-        res.redirect('/login')
-    })
-    
+            res.json({ relat: relat.rows, dif: dif.rows, today: day.rows, meta: meta[0]['meta'] })
+        })
+        .catch(err => {
+            console.log(err)
+            res.redirect('/login')
+        })
+
 })
 
 router.get('/aboutme', auth, async (req, res) => {
     var user = req.session.user;
-    var perm = await knex('users').select().where({username: user})
+    var perm = await knex('users').select().where({ username: user })
     //console.log(perm)
-    if(perm[0] != undefined){
-        res.render('dataperson', {perm: perm[0]})
-    }else{
+    if (perm[0] != undefined) {
+        res.render('dataperson', { perm: perm[0] })
+    } else {
         res.redirect('/login')
     }
 })
@@ -296,11 +296,11 @@ router.get('/aboutme', auth, async (req, res) => {
 router.get('/editPerson', auth, async (req, res) => {
     var maintenance = '0';
     let user = req.session.user
-    if(maintenance == '1'){
+    if (maintenance == '1') {
         res.render('erros/404')
-    }else{
-        var result = await knex('users').where({username: user})
-        res.render('editPerson', {meta: result[0].meta, preco: result[0].preco, timeacs: result[0].timeacs, acrescimo: result[0].acrescimo})
+    } else {
+        var result = await knex('users').where({ username: user })
+        res.render('editPerson', { meta: result[0].meta, preco: result[0].preco, timeacs: result[0].timeacs, acrescimo: result[0].acrescimo })
     }
 })
 
@@ -318,14 +318,14 @@ router.post('/uploadInfo', auth, async (req, res) => {
     console.log(meta + ' ' + user)
 
     await knex.raw(`UPDATE users SET meta = '${meta1}', preco = '${preco1}', acrescimo = '${acrescimo1}', timeacs = '${minutes}' WHERE username = '${user}'`)
-    .then( () => {
-        console.log('Dados atualizados')
-        res.redirect('/aboutme')
-    })
-    .catch( err => { 
-        console.log(err)
-        res.send('Error: 1005')
-    })
+        .then(() => {
+            console.log('Dados atualizados')
+            res.redirect('/aboutme')
+        })
+        .catch(err => {
+            console.log(err)
+            res.send('Error: 1005')
+        })
 })
 
 router.get('/logout', (req, res) => {
@@ -338,7 +338,7 @@ router.get('/logout', (req, res) => {
 router.get('/forgot', (req, res) => {
     var success = req.flash("success")
     success = (success == undefined || success.length == 0) ? undefined : success
-    res.render('forgot', {success: success})
+    res.render('forgot', { success: success })
 })
 
 router.get('/search', async (req, res) => {
@@ -346,13 +346,13 @@ router.get('/search', async (req, res) => {
     req.session.ident = uuid
     console.log(uuid)
 
-    var exist = await knex('users').where({recover: uuid})
+    var exist = await knex('users').where({ recover: uuid })
     console.log(exist)
 
-    if(exist[0] != undefined){
+    if (exist[0] != undefined) {
         console.log("Redefina sua senha")
         res.render('recover')
-    }else{
+    } else {
         res.send("Page not found!")
     }
 })
@@ -361,40 +361,40 @@ router.post('/recover', async (req, res) => {
     var { newPass, confirm } = req.body
     var identificadorUniversal = req.session.ident
 
-    if(newPass != confirm){
+    if (newPass != confirm) {
         res.redirect('/search?uuid=' + identificadorUniversal)
-    }else{
+    } else {
         var salt = bcrypt.genSaltSync(10)
         var hash = bcrypt.hashSync(newPass, salt)
 
-        await knex('users').where({recover: identificadorUniversal}).update({senha: hash})
-        .then( async () => {
-            await knex('users').where({recover: identificadorUniversal}).update({recover: null})
-            var success = `Senha alterada com sucesso!`
-            req.flash("success", success)
-            res.redirect('/login')
-        })
-        .catch(err => {
-            console.log('Ocorreu um erro: ' + err)
-            var erro = `Ocorreu um erro na mudança da senha, contatar o desenvolvedor.`
-            req.flash("erroLogin", erro)
-            res.redirect('/login')
-        })
+        await knex('users').where({ recover: identificadorUniversal }).update({ senha: hash })
+            .then(async () => {
+                await knex('users').where({ recover: identificadorUniversal }).update({ recover: null })
+                var success = `Senha alterada com sucesso!`
+                req.flash("success", success)
+                res.redirect('/login')
+            })
+            .catch(err => {
+                console.log('Ocorreu um erro: ' + err)
+                var erro = `Ocorreu um erro na mudança da senha, contatar o desenvolvedor.`
+                req.flash("erroLogin", erro)
+                res.redirect('/login')
+            })
     }
 
-    
+
 })
 
 router.post('/forgot', async (req, res) => {
-    var {email} = req.body
+    var { email } = req.body
     var uuid = uuidv4()
     console.log(uuid)
 
-    const teste = await knex('users').select().where({email: email})
+    const teste = await knex('users').select().where({ email: email })
 
-    if(teste[0] != undefined){
+    if (teste[0] != undefined) {
 
-        await knex('users').where({email: email}).update({recover: uuid})
+        await knex('users').where({ email: email }).update({ recover: uuid })
 
         var remetente = nodemailer.createTransport({
             service: 'Hotmail',
@@ -405,12 +405,12 @@ router.post('/forgot', async (req, res) => {
             },
             //secure: true
         })
-    
+
         var sendEmail = {
-    
+
             from: process.env.MAIL,
             to: email,
-            subject: 'Recuperação de senha - NÃO RESPONDA', 
+            subject: 'Recuperação de senha - NÃO RESPONDA',
             html: `
                 <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center;">
                     <div style="width: 50%;">
@@ -421,29 +421,60 @@ router.post('/forgot', async (req, res) => {
                     </div>
                 </div>
             `
-    
+
         }
-    
+
         remetente.sendMail(sendEmail, (err) => {
-            if(err){
+            if (err) {
                 console.log(err)
                 var erro = `Ocorreu um erro na tentantiva de enviar o email`
                 req.flash("erroLogin", erro)
                 res.redirect("/login")
-            }else{
+            } else {
                 console.log('Email enviado com sucesso!')
                 var success = `Email de recuperação Enviada para o email informado. Verifique sua caixa de mensagens ou sua lixeira!`
                 req.flash("success", success)
                 res.redirect("/forgot")
             }
         })
-    }else{
+    } else {
         var erro = `Cadastro não encontrado`
         req.flash("erroLogin", erro)
         res.redirect('/login')
     }
 
-    
+
+})
+
+router.get('/reimpressao', auth, async (req, res) => {
+    const list = [];
+    var info = await knex('users').where({ username: req.session.user })
+    res.render('reimprimir', { vec: list, user: req.session.user, cnpj: info[0]['cnpj'], phone: info[0]['phone'], address: info[0]['address'] })
+
+});
+
+router.post('/reimpressao', async (req, res) => {
+
+    let user = req.session.user;
+    var { placa, data } = req.body
+    console.log(req.session.user)
+
+    var info = await knex('users').where({ username: user })
+
+    await knex.raw(`
+        SELECT * FROM ${user}
+        WHERE placa = '${placa.toUpperCase()}'
+        AND CAST(entrada as date) = '${data}'
+    `).then(resp => {
+        res.render('reimprimir', { user: user, vec: resp.rows, cnpj: info[0]['cnpj'], phone: info[0]['phone'], address: info[0]['address'] })
+    })
+        .catch(e => {
+            console.log(e)
+        })
+
+    /* SELECT * FROM parking3
+    WHERE placa = 'PIZ-3339' 
+    AND CAST(entrada as date) = '2022-11-11' */
 })
 
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */

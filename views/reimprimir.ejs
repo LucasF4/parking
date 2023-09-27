@@ -1,0 +1,143 @@
+<%- include('./partials/head.ejs') %>
+    <%- include('./partials/nav.ejs') %>
+        <style>
+            .input-placa {
+                text-transform: uppercase;
+            }
+
+            @media print {
+                main *:not(#print):not(#print *) {
+                    visibility: hidden;
+                }
+
+                #print {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                }
+            }
+        </style>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="chartjs-size-monitor">
+                <div class="chartjs-size-monitor-expand">
+                    <div class=""></div>
+                </div>
+                <div class="chartjs-size-monitor-shrink">
+                    <div class=""></div>
+                </div>
+            </div>
+
+            <form action="/reimpressao" method="post" class="mt-4 row">
+                <div class="col-3 d-flex">
+                    <input style="margin-right: 10px;" type="date" name="data" class="form-control col-sm-3" value="" />
+                    <input style="margin-right: 10px;" type="text" onkeyup="$(this).mask('SSS-0A00')" name="placa"
+                        class="form-control col-sm-3 col-3 input-placa" placeholder="Informe a Placa do Veículo">
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                </div>
+            </form>
+
+            <% if(vec[0]==null || vec[0]==undefined){ %>
+                <div class="row mx-auto w-50 mt-5">
+                    <img src="src/images/produtoempty.jpg" />
+                    <p style="font-weight: bold; text-align: center;">Lista Vazia</p>
+                </div>
+                <% }else{ %>
+                    <br>
+                    <br>
+
+                    <table id="table" class="table text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Placa</th>
+                                <th scope="col">Entrada</th>
+                                <th scope="col">Saida</th>
+                                <th scope="col">Estadia</th>
+                                <th scope="col">Preço</th>
+                                <th scope="col">Cortesia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% vec.forEach(function(vec){ %>
+                                <tr>
+                                    <td>
+                                        <%= vec.placa %>
+                                    </td>
+                                    <td>
+                                        <%= vec.entrada.toString().substring(15, 24) %>
+                                    </td>
+                                    <td>
+                                        <%= vec.saida %>
+                                    </td>
+                                    <td>
+                                        <%= vec.estadia%>
+                                    </td>
+                                    <td>
+                                        <%= vec.preco %>
+                                    </td>
+                                    <td>
+                                        <% if(vec.descricao=='null' ){ %>
+                                            Não
+                                            <% }else{ %>
+                                                Sim
+                                                <% } %>
+                                    </td>
+                                    <td>
+                                        <button
+                                            onclick="showModal('<%= vec.placa %>', '<%= vec.entrada %>', '<%= vec.saida %>', '<%= vec.estadia %>' ,'<%= vec.preco %>')"
+                                            class="btn btn-success">Reimprimir
+                                            Comprovante</button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                    <% } %>
+
+                        <div id="print">
+
+                        </div>
+
+
+
+        </main>
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+        <script>
+            var inputDate = document.querySelector('input[type="date"]')
+            var date = new Date()
+            inputDate.value = date.getFullYear() + '-' + ((date.getMonth() + 1) <= 9 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + '-' + date.getDate()
+
+            function showModal(placa, entrada, saida, estadia, preco) {
+                var inputDate = document.querySelector('input[type="date"]')
+                console.log(inputDate.value)
+
+                document.getElementById('print').innerHTML = `
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        !--- Estabelecimento: <%= user.toUpperCase() %> | RECIBO<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <%= address %><br>
+        CNPJ: <%= cnpj %><br>
+        Phone: <%= phone %>
+        <br>--------------------------------------<br>
+        &emsp;&emsp;&emsp;&emsp;RECIBO - RETIRADA DO VEICULO<br>
+        --------------------------------------<br>
+        Placa: ${placa}<br>
+        Entrada: ${entrada}<br>
+        Saida: ${saida}<br>
+        Estadia: ${estadia}<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <p>Informacoes de pagamento:</p>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        TOTAL: ${preco}<br>
+        --------------------------------------<br>
+        >> OBRIGADO PELA PREFERENCIA, VOLTE SEMPRE<br>
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<br>
+        <small>Sistema: <br>systenparking.onrender.com</small><br>
+        `;
+                window.print();
+            }
+
+
+
+        </script>
