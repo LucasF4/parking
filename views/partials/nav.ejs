@@ -1,43 +1,54 @@
 <div class="container-fluid">
-    <div class="row">
-      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse vh-100 position-fixed">
-        <div class="position-sticky pt-3">
-          <h2>Painel de Controle</h2>
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse vh-100 position-fixed">
+      <div class="position-sticky pt-3">
+        <h2>Painel de Controle</h2>
+        <hr>
+        <ul class="nav nav-pills flex-column">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="feather feather-home" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              Início
+            </a>
+            <a class="nav-link" aria-current="page" href="/reimpressao">
+              <i class="fa-solid fa-ticket"></i>
+              Reimprimir Ticket
+            </a>
+            <a href="/relatorio" class="nav-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="feather feather-bar-chart-2" aria-hidden="true">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              Relatório
+            </a>
+            <a href="/home#ofertas" class="nav-link">
+              <i class="fa-sharp fa-solid fa-basket-shopping"></i>
+              Planos
+            </a>
+          </li>
           <hr>
-          <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="/">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Início
-              </a>
-              <a class="nav-link" aria-current="page" href="/reimpressao">
-                <i class="fa-solid fa-ticket"></i>
-                Reimprimir Ticket
-              </a>
-              <a href="/relatorio" class="nav-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                Relatório
-              </a>
-              <a href="/home#ofertas" class="nav-link">
-                <i class="fa-sharp fa-solid fa-basket-shopping"></i>
-                Planos
-              </a>
-            </li>
-            <hr>
-            <a class="nav-link" href="/aboutme">
-              <i class="fa-regular fa-user"></i>
-              Dados Pessoais
-            </a>
-            <a class="nav-link" href="/editPerson">
-              <i class="fa-solid fa-spin fa-gear"></i>
-              Confirugrações
-            </a>
-            <a class="nav-link" href="/logout">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-              Sing-Out
-            </a>
-          </ul>
-      
-          
-        </div>
-      </nav>
+          <a class="nav-link" href="/aboutme">
+            <i class="fa-regular fa-user"></i>
+            Dados Pessoais
+          </a>
+          <a class="nav-link" href="/editPerson">
+            <i class="fa-solid fa-spin fa-gear"></i>
+            Configurações
+          </a>
+          <a class="nav-link" href="/logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Sing-Out
+          </a>
+        </ul>
+
+
+      </div>
+    </nav>
